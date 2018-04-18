@@ -9,4 +9,4 @@
 
 # $1 is the directory that we're supposed to be in. We get it passed as a cli argument,
 # because we're not *actually* in this directory. Qsub puts this file into another directory.
-python "$1"/qsub_entry.py
+python "$1"/python_entry.py
