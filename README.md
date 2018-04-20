@@ -19,10 +19,14 @@ and a file called parameters.yaml in which you have two sections, one being 'def
 
 
 ## Git submodules
-In order to add a git submodule to a repository:
+In order to **add** a git submodule to a repository:
 
 ``` git submodule add git@github.com:Maltimore/gridsearch_helper.git path/where/submodule/should/be ```
 
-If you clone a repository that contains submodules, use this command to initialize all of them
+If you clone a repository that contains submodules, use this command to **initialize** all of them
 
 ``` git submodule update --init --recursive ```
+
+In order to **update** submodules to the tips of the remote branches:
+
+```	git submodule update --recursive --remote ```
