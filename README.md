@@ -16,3 +16,13 @@ def main(params, output_files_path, results_yaml_path, gridsearch):
 ```
 
 and a file called parameters.yaml in which you have two sections, one being 'default', containing the default parameters, and the other 'gridsearch', in which parameters to be gridsearched are given with their values in yaml-lists. See the example .yaml file.
+
+
+## Git submodules
+In order to add a git submodule to a repository:
+
+``` git submodule add git@github.com:Maltimore/gridsearch_helper.git path/where/submodule/should/be ```
+
+If you clone a repository that contains submodules, use this command to initialize all of them
+
+``` git submodule update --init --recursive ```
