@@ -49,13 +49,13 @@ with open(params_path, 'r') as f:
 params = assign_gridsearch_hyperparameters(task_id, params)
 
 random_run_id = str(uuid.uuid1())
-output_data_folder = os.path.join(
+output_data_path = os.path.join(
     'outfiles',
     str(os.environ['JOB_NAME']),
     'full_outputs',
     str(task_id).zfill(4) + '_' + random_run_id,
 )
-results_yaml_folder = os.path.join(
+results_yaml_path = os.path.join(
     'outfiles',
     str(os.environ['JOB_NAME']),
     'results',
@@ -64,4 +64,4 @@ results_yaml_folder = os.path.join(
 
 print(params)
 print("Running main.main()")
-main.main(params, output_data_folder, results_yaml_folder, gridsearch=True)
+main.main(params, output_data_path, results_yaml_path, gridsearch=True)
