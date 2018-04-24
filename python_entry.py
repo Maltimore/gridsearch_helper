@@ -62,9 +62,9 @@ results_yaml_path = os.path.join(
     str(task_id).zfill(4) + '_' + random_run_id,
 )
 if not os.path.exists(output_data_path):
-    os.makedis(output_data_path)
+    os.makedirs(output_data_path)
 if not os.path.exists(results_yaml_path):
-    os.makedis(results_yaml_path)
+    os.makedirs(results_yaml_path)
 
 print(params)
 print("Running main.main()")
