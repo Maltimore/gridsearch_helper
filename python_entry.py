@@ -55,7 +55,7 @@ output_data_path = os.path.join(
     'full_outputs',
     str(task_id).zfill(4) + '_' + random_run_id,
 )
-results_yaml_path = os.path.join(
+gridsearch_results_folder = os.path.join(
     'outfiles',
     str(os.environ['JOB_NAME']),
     'results',
@@ -63,9 +63,9 @@ results_yaml_path = os.path.join(
 )
 if not os.path.exists(output_data_path):
     os.makedirs(output_data_path)
-if not os.path.exists(results_yaml_path):
-    os.makedirs(results_yaml_path)
+if not os.path.exists(gridsearch_results_folder):
+    os.makedirs(gridsearch_results_folder)
 
 print(params)
 print("Running main.main()")
-main.main(params, output_data_path, results_yaml_path, gridsearch=True)
+main.main(params, output_data_path, gridsearch_results_folder, gridsearch=True)
