@@ -66,6 +66,10 @@ if not os.path.exists(output_data_path):
 if not os.path.exists(gridsearch_results_folder):
     os.makedirs(gridsearch_results_folder)
 
+# dump selected params
+with open(os.path.join(gridsearch_results_folder, 'parameters.yaml'), 'w') as f:
+    yaml.dump(params, f)
+
 print(params)
 print("Running main.main()")
 main.main(params, output_data_path, gridsearch_results_folder, gridsearch=True)
