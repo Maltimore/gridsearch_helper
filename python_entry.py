@@ -11,7 +11,7 @@ import main
 yaml = YAML()
 
 task_id = int(os.environ['SGE_TASK_ID'])
-print("In qsub_entry.py, task_id is {}".format(task_id))
+print("In python_entry.py, task_id is {}".format(task_id))
 
 
 def assign_gridsearch_hyperparameters(id_, params):
