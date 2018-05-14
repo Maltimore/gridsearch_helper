@@ -49,6 +49,8 @@ with open(params_path, 'r') as f:
 params = assign_gridsearch_hyperparameters(task_id, params)
 
 random_run_id = str(uuid.uuid1())
+print('Random run ID is: {}'.format(random_run_id))
+
 output_data_path = os.path.join(
     'outfiles',
     str(os.environ['JOB_NAME']),
