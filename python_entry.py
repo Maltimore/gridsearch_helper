@@ -51,27 +51,31 @@ params = assign_gridsearch_hyperparameters(task_id, params)
 random_run_id = str(uuid.uuid1())
 print('Random run ID is: {}'.format(random_run_id))
 
-output_data_path = os.path.join(
+output_path = os.path.join(
     'outfiles',
     str(os.environ['JOB_NAME']),
     'full_outputs',
     str(task_id).zfill(4) + '_' + random_run_id,
 )
-gridsearch_results_folder = os.path.join(
+gridsearch_results_path = os.path.join(
     'outfiles',
     str(os.environ['JOB_NAME']),
     'results',
     str(task_id).zfill(4) + '_' + random_run_id,
 )
-if not os.path.exists(output_data_path):
-    os.makedirs(output_data_path)
-if not os.path.exists(gridsearch_results_folder):
-    os.makedirs(gridsearch_results_folder)
+if not os.path.exists(output_path):
+    os.makedirs(output_path)
+if not os.path.exists(gridsearch_results_path):
+    os.makedirs(gridsearch_results_path)
+
+params['output_path'] = output_path
+params['gridsearch_results_path'] = gridsearch_results_path
+params['gridsearch'] = True
 
 # dump selected params
-with open(os.path.join(gridsearch_results_folder, 'parameters.yaml'), 'w') as f:
+with open(os.path.join(gridsearch_results_path, 'parameters.yaml'), 'w') as f:
     yaml.dump(params, f)
 
 print(params)
 print("Running main.main()")
-main.main(params, output_data_path, gridsearch_results_folder, gridsearch=True)
+main.main(params)
