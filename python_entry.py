@@ -34,7 +34,7 @@ def assign_gridsearch_hyperparameters(id_, params):
     for key in gridsearch_params.keys():
         param_names.append(key)
         param_values.append(gridsearch_params[key])
-    # this is where the magic happens:
+    # get all parameter combinations with the cartesian product
     parametercombos = list(itertools.product(*param_values))
     parametercombo_id = (id_ - 1) % len(parametercombos)
     parametercombo = parametercombos[parametercombo_id]
