@@ -3,7 +3,7 @@
 if [[ $# < 3 ]]; then
 	# $# holds the number of CL arguments
 	# this if-branch is executed if we have less than 3 arguments
-	echo "ERROR Call qsub.sh with three parameters: taskrange_begin taskrange_end job_name!"
+	echo "ERROR Call entry.sh with three parameters: taskrange_begin taskrange_end job_name!"
 	exit 1
 fi
 
