@@ -29,11 +29,7 @@ def assign_gridsearch_hyperparameters(id_, params):
     params = params['default']
     # the following determines how many parameter combos there are, based on the number
     # of lists in params. It then selects the parameter combo based on task_id
-    param_names = []
-    param_values = []
-    for key in gridsearch_params.keys():
-        param_names.append(key)
-        param_values.append(gridsearch_params[key])
+    param_names, param_values = zip(*gridsearch_params.items())
     # this is where the magic happens:
     parametercombos = list(itertools.product(*param_values))
     parametercombo_id = (id_ - 1) % len(parametercombos)
