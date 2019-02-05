@@ -27,16 +27,19 @@ def assign_gridsearch_hyperparameters(id_, params):
     params = params.copy()
     gridsearch_params = params['gridsearch']
     params = params['default']
-    # the following determines how many parameter combos there are, based on the number
-    # of lists in params. It then selects the parameter combo based on task_id
-    param_names, param_values = zip(*gridsearch_params.items())
-    # get all parameter combinations with the cartesian product
-    parametercombos = list(itertools.product(*param_values))
-    parametercombo_id = (id_ - 1) % len(parametercombos)
-    parametercombo = parametercombos[parametercombo_id]
-    for idx, key in enumerate(param_names):
-        params[key] = parametercombo[idx]
-    return params
+    # The following determines how many parameter combos there are
+    # It then selects the parameter combo based on task_id
+    while True:
+        for config in gridsearch_params.keys():
+            param_names, param_values = zip(*gridsearch_params[config].items())
+            # get all parameter combinations with the cartesian product
+            parametercombos = list(itertools.product(*param_values))
+            if (id_ - 1) < len(parametercombos):
+                parametercombo = parametercombos[id_ - 1]
+                for idx, key in enumerate(param_names):
+                    params[key] = parametercombo[idx]
+                return params
+            id_ -= len(parametercombos)
 
 
 params_path = os.path.join(project_dir_file_path, 'parameters.yaml')
