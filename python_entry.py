@@ -11,7 +11,7 @@ import main
 yaml = YAML()
 
 task_id = int(os.environ['SGE_TASK_ID'])
-print("In qsub_entry.py, task_id is {}".format(task_id))
+print("In python_entry.py, task_id is {}".format(task_id))
 
 
 def assign_gridsearch_hyperparameters(id_, params):
@@ -30,7 +30,7 @@ def assign_gridsearch_hyperparameters(id_, params):
     # the following determines how many parameter combos there are, based on the number
     # of lists in params. It then selects the parameter combo based on task_id
     param_names, param_values = zip(*gridsearch_params.items())
-    # this is where the magic happens:
+    # get all parameter combinations with the cartesian product
     parametercombos = list(itertools.product(*param_values))
     parametercombo_id = (id_ - 1) % len(parametercombos)
     parametercombo = parametercombos[parametercombo_id]
@@ -45,23 +45,33 @@ with open(params_path, 'r') as f:
 params = assign_gridsearch_hyperparameters(task_id, params)
 
 random_run_id = str(uuid.uuid1())
-output_data_path = os.path.join(
+print('Random run ID is: {}'.format(random_run_id))
+
+output_path = os.path.join(
     'outfiles',
     str(os.environ['JOB_NAME']),
     'full_outputs',
     str(task_id).zfill(4) + '_' + random_run_id,
 )
-results_yaml_path = os.path.join(
+gridsearch_results_path = os.path.join(
     'outfiles',
     str(os.environ['JOB_NAME']),
     'results',
     str(task_id).zfill(4) + '_' + random_run_id,
 )
-if not os.path.exists(output_data_path):
-    os.makedirs(output_data_path)
-if not os.path.exists(results_yaml_path):
-    os.makedirs(results_yaml_path)
+if not os.path.exists(output_path):
+    os.makedirs(output_path)
+if not os.path.exists(gridsearch_results_path):
+    os.makedirs(gridsearch_results_path)
+
+params['output_path'] = output_path
+params['gridsearch_results_path'] = gridsearch_results_path
+params['gridsearch'] = True
+
+# dump selected params
+with open(os.path.join(gridsearch_results_path, 'parameters.yaml'), 'w') as f:
+    yaml.dump(params, f)
 
 print(params)
 print("Running main.main()")
-main.main(params, output_data_path, results_yaml_path, gridsearch=True)
+main.main(params)

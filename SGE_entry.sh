@@ -2,8 +2,7 @@
 #$ -cwd
 #$ -V
 #$ -l h_vmem=20G
-#$ -l s_rt=00:40:00
-#$ -l h_rt=00:60:00
+#$ -l h_rt=02:00:00
 #$ -o ./textoutput/$JOB_NAME/$TASK_ID.out
 #$ -e ./textoutput/$JOB_NAME/$TASK_ID.error
 
