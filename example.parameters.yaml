@@ -19,14 +19,19 @@ default:
 
 
 gridsearch:
-    learning_rule:
-    - double_q_learning
-    - double_expected_sarsa
-    target_update_rate:
-    - 500
-    - 1000
-    n_hidden:
-    - 50
-    - 100
-    min_train_steps_per_episode:
-    - 100
+    config1:
+        learning_rule:
+        - double_q_learning
+        target_update_rate:
+        - 500
+        - 1000
+        min_train_steps_per_episode:
+        - 100
+    config2:
+        learning_rule:
+        - double_expected_sarsa
+        target_update_rate:
+        - 500
+        - 9999999
+        min_train_steps_per_episode:
+        - 100
