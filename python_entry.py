@@ -1,3 +1,6 @@
+import time
+start_time = time.time()
+print("Start time: {}".format(time.strftime('%H:%M:%S')))
 import os
 import uuid
 import itertools
@@ -75,6 +78,11 @@ params['gridsearch'] = True
 with open(os.path.join(gridsearch_results_path, 'parameters.yaml'), 'w') as f:
     yaml.dump(params, f)
 
+print("Parameters:")
 print(params)
-print("Running main.main()")
+print("Running main.main()", flush=True)
 main.main(params)
+
+end_time = time.time() - start_time
+print("End time: {}".format(time.strftime('%H:%M:%S')))
+print("Run time (seconds): {}".format(end_time - start_time), flush=True)
