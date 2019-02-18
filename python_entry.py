@@ -1,6 +1,6 @@
 import time
 start_time = time.time()
-print("Start time: {}".format(time.strftime('%H:%M:%S')))
+print("Start time: {}".format(time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(start_time))))
 import os
 import uuid
 import itertools
@@ -83,6 +83,7 @@ print(params)
 print("Running main.main()", flush=True)
 main.main(params)
 
-end_time = time.time() - start_time
-print("End time: {}".format(time.strftime('%H:%M:%S')))
-print("Run time (seconds): {}".format(end_time - start_time), flush=True)
+end_time = time.time()
+run_time = end_time - start_time
+print("End time: {}".format(time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(end_time))))
+print("Run time (seconds): {}".format(run_time), flush=True)
