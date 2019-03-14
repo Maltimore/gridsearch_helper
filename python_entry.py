@@ -35,6 +35,12 @@ def assign_gridsearch_hyperparameters(id_, params):
     while True:
         for config in gridsearch_params.keys():
             param_names, param_values = zip(*gridsearch_params[config].items())
+            # replace non iterables in param_values with a single-element list such that
+            # the cartesian product later doesn't error out
+            param_values = list(param_values)
+            for i in range(len(param_values)):
+                if not isinstance(param_values[i], (list, tuple)):
+                    param_values[i] = list(param_values[i])
             # get all parameter combinations with the cartesian product
             parametercombos = list(itertools.product(*param_values))
             if (id_ - 1) < len(parametercombos):
