@@ -7,8 +7,8 @@ import itertools
 from ruamel.yaml import YAML
 import sys
 
-project_dir_file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir)
-sys.path.append(project_dir_file_path)
+#project_dir_file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir)
+#sys.path.append(project_dir_file_path)
 import main
 
 yaml = YAML()
@@ -45,7 +45,7 @@ def assign_gridsearch_hyperparameters(id_, params):
             id_ -= len(parametercombos)
 
 
-params_path = os.path.join(project_dir_file_path, 'parameters.yaml')
+params_path = os.path.join('parameters.yaml')
 with open(params_path, 'r') as f:
     params = dict(yaml.load(f))
 params = assign_gridsearch_hyperparameters(task_id, params)
@@ -54,12 +54,14 @@ random_run_id = str(uuid.uuid1())
 print('Random run ID is: {}'.format(random_run_id))
 
 output_path = os.path.join(
+    '..',
     'outfiles',
     str(os.environ['JOB_NAME']),
     'full_outputs',
     str(task_id).zfill(4) + '_' + random_run_id,
 )
 gridsearch_results_path = os.path.join(
+    '..',
     'outfiles',
     str(os.environ['JOB_NAME']),
     'results',
