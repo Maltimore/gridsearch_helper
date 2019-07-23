@@ -7,8 +7,8 @@ import itertools
 from ruamel.yaml import YAML
 import sys
 
-#project_dir_file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir)
-#sys.path.append(project_dir_file_path)
+# We need to add the cwd to sys.path here for reasons that are beyond my understanding.
+sys.path.append(os.getcwd())
 import main
 
 yaml = YAML()
