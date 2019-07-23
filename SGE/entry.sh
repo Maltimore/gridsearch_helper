@@ -3,7 +3,7 @@
 if [[ $# < 3 ]]; then
 	# $# holds the number of CL arguments
 	# this if-branch is executed if we have less than 3 arguments
-	echo "ERROR Call entry.sh with three parameters: taskrange_begin taskrange_end job_name!"
+	echo "ERROR! Call entry.sh with three parameters: taskrange_begin taskrange_end job_name!"
 	exit 1
 fi
 
@@ -13,10 +13,9 @@ taskrange_begin="$1"
 taskrange_end="$2"
 job_name="$3"
 
-
-# Clear text output directory?
+# Clear text output directory? (Ask only if it exists)
 if [ -d "./textoutput/$job_name" ]; then
-    echo "Shall I clear the folders with output and error text? [y/n]"
+	echo "Shall I clear the folders with output and error text? [y/n] (default: y)"
     read answer
 
     if [ "$answer" == "y" ] || [ "$answer" == "" ]; then
@@ -25,10 +24,12 @@ if [ -d "./textoutput/$job_name" ]; then
     fi
 fi
 
-# if textoutput directory doesn't exist, create
+# if textoutput directory doesn't exist, create it
 if [ ! -d "./textoutput/$job_name" ]; then
 	echo "Creating textoutput directory textoutput"
 	mkdir -p ./textoutput/"$job_name"
 fi
 
+# start the actual jobs via the qsub command. We pass here the SGE_entry.sh script as the
+# script that should be executed by qsub
 qsub -N "$job_name" -t "$taskrange_begin"-"$taskrange_end" "$script_dir"/SGE_entry.sh "$script_dir"
