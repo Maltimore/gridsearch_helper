@@ -59,9 +59,7 @@ def parallel_coordinates(df, target_column, lower_is_better=True, **kwds):
         # loop over lines
         for idx in df.index:
             y = target_colors[idx]
-            transparency = max(0.2, y**2)
-            im = ax.plot(
-                x_ticks, df.loc[idx, cols], color=cm.viridis(y), linewidth=3)#, alpha=transparency)
+            ax.plot(x_ticks, df.loc[idx, cols], color=cm.viridis(y), linewidth=3)
         ax.set_xlim([x_ticks[i], x_ticks[i + 1]])
 
     norm = mpl.colors.Normalize(vmin=minimum_target, vmax=maximum_target)
@@ -91,34 +89,7 @@ def parallel_coordinates(df, target_column, lower_is_better=True, **kwds):
     plt.subplots_adjust(wspace=0)
 
 
-if __name__ == '__main__':
-    ################################################################################################
-    # PARAMETERS
-    # Specify which columns to plot as strings in a list. List can be empty.
-    RELEVANT_PARAMETERS = ['name']  # list of strings (list can be empty)
-    # what variable to use as performance measure
-    TARGET_COLUMN = 'first_success'  # string
-    # is the performance better when the target variable is lower or when it is higher?
-    LOWER_IS_BETTER = True  # bool
-    # split up the analysis into separate parts for unique values in this column
-    SPLIT_ANALYSIS_COLUMN = None  # string or None
-    # only for 1 relevant parameter (len(RELEVANT_PARAMETERS) == 1): the order in which
-    # to present the swarm/bar plot variables
-    # should be None if no order is specified
-    # this can also be used to control *which* entries are presented at all by only including the
-    # relevant onces in the list
-    VAR_ORDER = ['normal', 'hallucinate', 'neg_temp', 'hallucinate_&_neg_temp']
-    ################################################################################################
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--path', help='results directory')
-    path = parser.parse_args().path
-
-    plot_path = os.path.join(path, 'plots')
-    if not os.path.exists(plot_path):
-        os.makedirs(plot_path)
-
-    df = pd.read_csv(os.path.join(path, 'results_df.csv'))
+def plot(df, plot_path, RELEVANT_PARAMETERS, TARGET_COLUMN, LOWER_IS_BETTER, SPLIT_ANALYSIS_COLUMN, VAR_ORDER):
 
     # get the y_max as the maximum of the target column + 3% (for aesthetic)
     y_max = df[TARGET_COLUMN].max()
@@ -184,3 +155,34 @@ if __name__ == '__main__':
                 print(df.iloc[df[TARGET_COLUMN].idxmax()])
             parallel_coordinates(df, TARGET_COLUMN, lower_is_better=LOWER_IS_BETTER)
             plt.savefig(os.path.join(plot_path, '{}={}_parallel_coordinates.svg'.format(SPLIT_ANALYSIS_COLUMN, groupname)))
+
+
+if __name__ == '__main__':
+    ################################################################################################
+    # PARAMETERS
+    # Specify which columns to plot as strings in a list. List can be empty.
+    RELEVANT_PARAMETERS = ['name']  # list of strings (list can be empty)
+    # what variable to use as performance measure
+    TARGET_COLUMN = 'first_success'  # string
+    # is the performance better when the target variable is lower or when it is higher?
+    LOWER_IS_BETTER = True  # bool
+    # split up the analysis into separate parts for unique values in this column
+    SPLIT_ANALYSIS_COLUMN = None  # string or None
+    # only for 1 relevant parameter (len(RELEVANT_PARAMETERS) == 1): the order in which
+    # to present the swarm/bar plot variables
+    # should be None if no order is specified
+    # this can also be used to control *which* entries are presented at all by only including the
+    # relevant onces in the list
+    VAR_ORDER = ['normal', 'hallucinate', 'neg_temp', 'hallucinate_&_neg_temp']
+    ################################################################################################
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--path', help='results directory')
+    path = parser.parse_args().path
+
+    plot_path = os.path.join(path, 'plots')
+    if not os.path.exists(plot_path):
+        os.makedirs(plot_path)
+
+    df = pd.read_csv(os.path.join(path, 'results_df.csv'))
+    plot(df, plot_path, RELEVANT_PARAMETERS, TARGET_COLUMN, LOWER_IS_BETTER, SPLIT_ANALYSIS_COLUMN, VAR_ORDER)
