@@ -7,8 +7,8 @@ import itertools
 from ruamel.yaml import YAML
 import sys
 
-# We need to add the cwd to sys.path here for reasons that are beyond my understanding.
-sys.path.append(os.getcwd())
+# the content of sys.argv[1] is the directory of the desired main.py file
+sys.path.append(sys.argv[1])
 import main
 
 yaml = YAML()
