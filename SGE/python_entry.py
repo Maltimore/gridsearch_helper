@@ -50,29 +50,30 @@ with open(params_path, 'r') as f:
     params = dict(yaml.load(f))
 params = assign_gridsearch_hyperparameters(task_id, params)
 
-random_run_id = str(uuid.uuid1())
-print('Random run ID is: {}'.format(random_run_id))
+run_id = str(uuid.uuid1())
+print('Random run ID is: {}'.format(run_id))
 
-output_path = os.path.join(
-    '..',
+# create output paths and corresponding directories
+data_dir = os.path.join(
+    os.getcwd(),
     'outfiles',
-    str(os.environ['JOB_NAME']),
+    str(os.environ['JOB_NAME']))
+full_output_path = os.path.join(
+    data_dir,
     'full_outputs',
-    str(task_id).zfill(4) + '_' + random_run_id,
+    str(task_id).zfill(4) + '_' + run_id,
 )
 gridsearch_results_path = os.path.join(
-    '..',
-    'outfiles',
-    str(os.environ['JOB_NAME']),
+    data_dir,
     'results',
-    str(task_id).zfill(4) + '_' + random_run_id,
+    str(task_id).zfill(4) + '_' + run_id,
 )
-if not os.path.exists(output_path):
-    os.makedirs(output_path)
+if not os.path.exists(full_output_path):
+    os.makedirs(full_output_path)
 if not os.path.exists(gridsearch_results_path):
     os.makedirs(gridsearch_results_path)
 
-params['output_path'] = output_path
+params['output_path'] = full_output_path
 params['gridsearch_results_path'] = gridsearch_results_path
 params['gridsearch'] = True
 
