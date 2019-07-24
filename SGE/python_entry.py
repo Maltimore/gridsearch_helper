@@ -8,7 +8,8 @@ from ruamel.yaml import YAML
 import sys
 
 # the content of sys.argv[1] is the directory of the desired main.py file
-sys.path.append(sys.argv[1])
+main_dot_py_dir = sys.argv[1]
+sys.path.append(main_dot_py_dir)
 import main
 
 yaml = YAML()
@@ -45,7 +46,7 @@ def assign_gridsearch_hyperparameters(id_, params):
             id_ -= len(parametercombos)
 
 
-params_path = os.path.join('parameters.yaml')
+params_path = os.path.join(main_dot_py_dir, 'parameters.yaml')
 with open(params_path, 'r') as f:
     params = dict(yaml.load(f))
 params = assign_gridsearch_hyperparameters(task_id, params)
