@@ -88,6 +88,7 @@ def parallel_coordinates(df, target_column, lower_is_better=True, **kwds):
 
 
 def plot(df, plot_path, RELEVANT_PARAMETERS, TARGET_COLUMN, LOWER_IS_BETTER, SPLIT_ANALYSIS_COLUMN, VAR_ORDER):
+    df[TARGET_COLUMN] = df[TARGET_COLUMN].astype('float64')
 
     # get the y_max as the maximum of the target column + 3% (for aesthetic)
     y_max = df[TARGET_COLUMN].max()
