@@ -40,7 +40,7 @@ and from then on you can call your gridsearch simply with ``gridsearch_entry.sh 
 This repository also contains a package ``gridsearch_analysis``. ``gridsearch_analysis`` can be installed by simply running ``pip install .`` from the root of this repository.
 ``gridsearch_analysis`` assumes that the above instructions were followed, in other words that there is a folder ``outfiles/mygridsearch_name/results`` and in this folder there is one subfolder for each job that ran, and in each subfolder there are two files: ``parameters.yaml`` and ``program_state.yaml``. You can use the function ``collect_results``, which loops over all subfolders and collects all values in ``parameters.yaml`` and ``program_state.yaml`` into a pandas dataframe.
 
-If some of your runs didn't finish yet but you can't wait and already wnat to perform the analysis, you also have the option of setting some default values (see code below):
+If some of your runs didn't finish yet but you can't wait and already wnat to perform the analysis, and you also want to include the missing runs in the analysis, you have the option of setting some default values for unfinished runs (see code below):
 
 ```python
 from gridsearch_analysis import collect_results
