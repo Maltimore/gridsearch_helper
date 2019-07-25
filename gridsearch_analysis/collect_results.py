@@ -1,7 +1,6 @@
 import pandas as pd
 from ruamel.yaml import YAML
 import os
-import argparse
 
 yaml = YAML()
 
@@ -60,20 +59,3 @@ def collect_results(path, default_values={}, result_keys=(), skip_unfinished_run
             print("{} of {} done".format(str(idx).zfill(4), str(len(result_dirs)).zfill(4)))
 
     return df
-
-
-if __name__ == '__main__':
-    ##############################################################################################
-    # default values are being used if the run didn't finish yet and skip_unfinished_runs is False
-    DEFAULT_VALUES = {}
-    DEFAULT_VALUES['first_success'] = 150
-    RESULT_KEYS = ('first_success',)
-    skip_unfinished_runs = True
-    ##############################################################################################
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--path', help='results directory')
-    args = parser.parse_args()
-    results_path = os.path.join(args.path, 'results')
-    df = collect_results(results_path, DEFAULT_VALUES, RESULT_KEYS, skip_unfinished_runs)
-    df.to_csv(os.path.join(args.path, 'results_df.csv'))
