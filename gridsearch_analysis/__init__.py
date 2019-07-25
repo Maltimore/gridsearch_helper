@@ -1,1 +1,1 @@
-from . import collect_results, plots
+from . import collect_results, plotting

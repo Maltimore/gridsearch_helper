@@ -1,7 +1,8 @@
 import os
 import argparse
 
-from . import collect_results, plotting
+import collect_results
+import plotting
 
 if __name__ == '__main__':
     ##############################################################################################
