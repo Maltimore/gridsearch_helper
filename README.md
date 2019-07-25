@@ -37,3 +37,44 @@ export PATH=$PATH:"$HOME"/gridsearch_helper/SGE
 and from then on you can call your gridsearch simply with ``gridsearch_entry.sh myrepo/src/main.py 1 20 mygridsearch_name``.
 
 ## Usage - analyzing results
+This repository also contains a package ``gridsearch_analysis``. ``gridsearch_analysis`` can be installed by simply running ``pip install .`` from the root of this repository.
+``gridsearch_analysis`` assumes that the above instructions were followed, in other words that there is a folder ``outfiles/mygridsearch_name/results`` and in this folder there is one subfolder for each job that ran, and in each subfolder there are two files: ``parameters.yaml`` and ``program_state.yaml``. You can use the function ``collect_results``, which loops over all subfolders and collects all values in ``parameters.yaml`` and ``program_state.yaml`` into a pandas dataframe.
+
+If some of your runs didn't finish yet but you can't wait and already wnat to perform the analysis, you also have the option of setting some default values (see code below):
+
+```python
+from gridsearch_analysis import collect_results
+
+# default values are being used if the run didn't finish yet and skip_unfinished_runs is False
+DEFAULT_VALUES = {}
+DEFAULT_VALUES['first_success'] = 150
+RESULT_KEYS = ('first_success',)
+skip_unfinished_runs = False
+
+df = collect_results.collect_results(
+	results_path, DEFAULT_VALUES, RESULT_KEYS, skip_unfinished_runs)
+```
+
+
+Furthermore, ``gridsearch_analysis`` can also make plots of the collected results. It will plot the performance as measured by some variable ``target_column`` as a function of user-specified indpendent variables ``relevant_parameters``. The type of plot created depends on how many independent variables you specify. If you have:
+- 0  independent variables: create a swarm/barplot with a single group that contains all runs
+- 1  independent variable: create a swarm/barplot with one group for each value of the independent variable
+- 2+ independent variables: create a parallel coordinates plot
+
+There is also an option to split the analysis into separate parts via the values of another independent variable. In this case, one plot per value of this ``split_analysis_column`` is performed. This effectively reduces the amount of independent variables by 1.
+
+```python
+from gridsearch_analysis import plotting
+
+# Specify which columns to plot as strings in a list. List can be empty.
+RELEVANT_PARAMETERS = ['name']  # list of strings (list can be empty)
+# what variable to use as performance measure
+TARGET_COLUMN = 'first_success'  # string
+# is the performance better when the target variable is lower or when it is higher?
+LOWER_IS_BETTER = True  # bool
+# split up the analysis into separate parts for unique values in this column
+SPLIT_ANALYSIS_COLUMN = None  # string or None
+
+plotting.plot(
+	df, plot_path, RELEVANT_PARAMETERS, TARGET_COLUMN, LOWER_IS_BETTER, SPLIT_ANALYSIS_COLUMN, VAR_ORDER)
+```
