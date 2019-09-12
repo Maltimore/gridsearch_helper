@@ -1,4 +1,6 @@
 #! /bin/bash
+# Usage:
+# gridsearch_entry.sh path/to/main.py taskrange_begin taskrange_end job_name
 
 if [[ $# < 4 ]]; then
 	# $# holds the number of CL arguments
