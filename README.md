@@ -20,7 +20,7 @@ Then, from the working directory in which you want your program to be run, call 
 /path/to/entry.sh /path/to/main.py start_idx end_idx run_name
 ```
 
-Where ``/path/to/main.py`` is the (relative or absolute) path to the main.py file, ``start_idx`` is the beginning index of the task ranage, ``end_idx`` is the end index of the task range, and ``run_name`` is the name for the entire run. To call a gridsearch with indices 1, 2, 3, 4, 5, 6 and name mygridsearch, and assuming that the (relative) path to your main.py is myprojet/main.py, call
+Where ``/path/to/main.py`` is the (relative or absolute) path to the main.py file, ``start_idx`` is the beginning index of the task range, ``end_idx`` is the end index of the task range, and ``run_name`` is the name for the entire run. To call a gridsearch with indices 1, 2, 3, 4, 5, 6 and name mygridsearch, and assuming that the (relative) path to your main.py is myproject/main.py, call
 
 ```
 /path/to/entry.sh myproject/main.py 1 6 mygridsearch_name
