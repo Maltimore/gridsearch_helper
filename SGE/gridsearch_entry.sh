@@ -2,10 +2,18 @@
 # Usage:
 # gridsearch_entry.sh path/to/main.py taskrange_begin taskrange_end job_name
 
+if [ "$1" == "-h" ]; then
+    echo "Usage: gridsearch_entry.sh path/to/main.py taskrange_begin taskrange_end job_name"
+    echo "Readme at: https://github.com/maltimore/gridsearch_helper"
+    exit 1
+fi
+
 if [[ $# < 4 ]]; then
 	# $# holds the number of CL arguments
 	# this if-branch is executed if we have less than 3 arguments
 	echo "ERROR! Call entry.sh with 4 parameters: path/to/main.py taskrange_begin taskrange_end job_name!"
+    echo "Usage: gridsearch_entry.sh path/to/main.py taskrange_begin taskrange_end job_name"
+    echo "Readme at: https://github.com/maltimore/gridsearch_helper"
 	exit 1
 fi
 
