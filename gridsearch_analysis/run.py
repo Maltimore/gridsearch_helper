@@ -7,11 +7,7 @@ import plotting
 if __name__ == '__main__':
     # PARAMETERS
     # COLLECT RESULTS
-    # default values are being used if the run didn't finish yet and skip_unfinished_runs is False
-    DEFAULT_VALUES = {}
-    DEFAULT_VALUES['first_success'] = 150
     RESULT_KEYS = ('first_success',)
-    skip_unfinished_runs = True
     # PLOTTING
     # Specify which columns to plot as strings in a list. List can be empty.
     RELEVANT_PARAMETERS = ['name']  # list of strings (list can be empty)
@@ -36,7 +32,7 @@ if __name__ == '__main__':
     # collect results
     results_path = os.path.join(args.path, 'results')
     df = collect_results.collect_results(
-        results_path, DEFAULT_VALUES, RESULT_KEYS, skip_unfinished_runs)
+        results_path, RESULT_KEYS)
     df.to_csv(os.path.join(args.path, 'results_df.csv'))
 
     # plotting
