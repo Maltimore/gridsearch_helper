@@ -5,18 +5,14 @@ import collect_results
 import plotting
 
 if __name__ == '__main__':
-    ##############################################################################################
-    ##############################################################################################
     # PARAMETERS
-    ##############################################################################################
-    # Collect results
+    # COLLECT RESULTS
     # default values are being used if the run didn't finish yet and skip_unfinished_runs is False
     DEFAULT_VALUES = {}
     DEFAULT_VALUES['first_success'] = 150
     RESULT_KEYS = ('first_success',)
     skip_unfinished_runs = True
-    ##############################################################################################
-    # Plotting
+    # PLOTTING
     # Specify which columns to plot as strings in a list. List can be empty.
     RELEVANT_PARAMETERS = ['name']  # list of strings (list can be empty)
     # what variable to use as performance measure
@@ -30,9 +26,7 @@ if __name__ == '__main__':
     # should be None if no order is specified
     # this can also be used to control *which* entries are presented at all by only including the
     # relevant onces in the list
-    VAR_ORDER = ['normal', 'hallucinate', 'neg_temp', 'hallucinate_&_neg_temp']
-    ##############################################################################################
-    ##############################################################################################
+    VAR_ORDER = ['normal', 'model_based', 'rupture_avoidance', 'both']
 
     # CLI arguments
     parser = argparse.ArgumentParser()
