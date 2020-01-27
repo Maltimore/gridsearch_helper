@@ -6,9 +6,6 @@ import plotting
 
 if __name__ == '__main__':
     # PARAMETERS
-    # COLLECT RESULTS
-    RESULT_KEYS = ('first_success',)
-    # PLOTTING
     # Specify which columns to plot as strings in a list. List can be empty.
     RELEVANT_PARAMETERS = ['name']  # list of strings (list can be empty)
     # what variable to use as performance measure
@@ -31,8 +28,7 @@ if __name__ == '__main__':
 
     # collect results
     results_path = os.path.join(args.path, 'results')
-    df = collect_results.collect_results(
-        results_path, RESULT_KEYS)
+    df = collect_results.collect_results(results_path)
     df.to_csv(os.path.join(args.path, 'results_df.csv'))
 
     # plotting

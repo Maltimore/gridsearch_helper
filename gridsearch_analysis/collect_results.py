@@ -5,7 +5,7 @@ import os
 yaml = YAML()
 
 
-def collect_results(path, save_df_to=None):
+def collect_results(path):
     """collect_results
     Goes through all the results directories, reads the parameters.yaml and program_state.yaml
     and writes the relevant values into a pandas dataframe
@@ -48,8 +48,5 @@ def collect_results(path, save_df_to=None):
 
         if idx % 100 == 0:
             print("{} of {} done".format(str(idx).zfill(4), str(len(result_dirs)).zfill(4)))
-
-    if save_df_to is not None:
-        df.to_csv(save_df_to)
 
     return df
