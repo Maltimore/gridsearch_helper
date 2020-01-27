@@ -8,6 +8,78 @@ import numpy as np
 import seaborn as sns
 
 
+def plot(df, plot_path, RELEVANT_PARAMETERS, TARGET_COLUMN, LOWER_IS_BETTER, SPLIT_ANALYSIS_COLUMN, VAR_ORDER):
+    df[TARGET_COLUMN] = df[TARGET_COLUMN].astype('float64')
+
+    # get the y_max as the maximum of the target column + 3% (for aesthetic)
+    y_max = df[TARGET_COLUMN].max()
+    y_max += 0.03 * y_max
+
+    # check whether we have to split the analysis into different groups
+    # if not, create a fake group called "all"
+    if SPLIT_ANALYSIS_COLUMN is None:
+        groups = {'all': df}.items()
+    else:
+        groups = df.groupby(SPLIT_ANALYSIS_COLUMN)
+
+    # iterate over the groups for our split analysis
+    for groupname, df in groups:
+        print('Processing group {} = {}'.format(SPLIT_ANALYSIS_COLUMN if not None else "group", groupname))
+
+        if len(RELEVANT_PARAMETERS) == 0:
+            # swarm plot
+            plot = sns.swarmplot(y=TARGET_COLUMN, data=df)
+            fig = plot.get_figure()
+            plot.set_xticklabels(plot.get_xticklabels(), rotation=90)
+            plot.set_ylim([0, y_max])
+            plot.grid(axis='y')
+            fig.savefig(os.path.join(plot_path, '{}={}_swarmplot.png'.format(SPLIT_ANALYSIS_COLUMN, groupname)))
+            plt.clf()
+
+            # bar plot
+            plt.bar(0, df[TARGET_COLUMN].describe().loc['mean'], yerr=df[TARGET_COLUMN].describe().loc['std'])
+            plt.xlim([-1, 1])
+            plt.ylim([0, y_max])
+            plt.savefig(os.path.join(plot_path, '{}={}_barplot.png'.format(SPLIT_ANALYSIS_COLUMN, groupname)))
+            plt.clf()
+
+        elif len(RELEVANT_PARAMETERS) == 1:
+            relevant_col = RELEVANT_PARAMETERS[0]
+
+            # swarm plot
+            plot = sns.swarmplot(x=relevant_col, y=TARGET_COLUMN, data=df, order=VAR_ORDER)
+            fig = plot.get_figure()
+            plot.set_xticklabels(plot.get_xticklabels(), rotation=90)
+            plot.set_ylim([0, y_max])
+            plot.grid(axis='y')
+            fig.savefig(os.path.join(plot_path, '{}={}_swarmplot_{}.png'.format(SPLIT_ANALYSIS_COLUMN, groupname, relevant_col)))
+            plt.clf()
+
+            # bar plot
+            reduced_df = df.groupby(relevant_col)[TARGET_COLUMN].describe()
+            if not len(reduced_df.index) == len(VAR_ORDER):
+                raise Exception('There are values in VAR_ORDER that do not appear in the data: {}'.format(
+                    np.setdiff1d(VAR_ORDER, list(reduced_df.index))))
+            if VAR_ORDER is not None:
+                reduced_df = reduced_df.loc[VAR_ORDER]
+            reduced_df.plot.bar(y='mean', yerr='std')
+            plt.ylim([0, y_max])
+            plt.savefig(os.path.join(plot_path, '{}={}_barplot_{}.png'.format(SPLIT_ANALYSIS_COLUMN, groupname, relevant_col)))
+            plt.clf()
+
+        elif len(RELEVANT_PARAMETERS) > 1:
+            # average over runs with same parameters
+            df = df[RELEVANT_PARAMETERS + [TARGET_COLUMN]]
+            df = df.groupby(RELEVANT_PARAMETERS, as_index=False).agg(np.mean)
+            print("Best entry:")
+            if LOWER_IS_BETTER:
+                print(df.iloc[df[TARGET_COLUMN].idxmin()])
+            else:
+                print(df.iloc[df[TARGET_COLUMN].idxmax()])
+            parallel_coordinates(df, TARGET_COLUMN, lower_is_better=LOWER_IS_BETTER)
+            plt.savefig(os.path.join(plot_path, '{}={}_parallel_coordinates.svg'.format(SPLIT_ANALYSIS_COLUMN, groupname)))
+
+
 def parallel_coordinates(df, target_column, lower_is_better=True, **kwds):
     minimum_target = df[target_column].min()
     maximum_target = df[target_column].max()
@@ -85,75 +157,3 @@ def parallel_coordinates(df, target_column, lower_is_better=True, **kwds):
     ax.set_xticklabels([cols[-2], cols[-1]])
     # Remove space between subplots
     plt.subplots_adjust(wspace=0)
-
-
-def plot(df, plot_path, RELEVANT_PARAMETERS, TARGET_COLUMN, LOWER_IS_BETTER, SPLIT_ANALYSIS_COLUMN, VAR_ORDER):
-    df[TARGET_COLUMN] = df[TARGET_COLUMN].astype('float64')
-
-    # get the y_max as the maximum of the target column + 3% (for aesthetic)
-    y_max = df[TARGET_COLUMN].max()
-    y_max += 0.03 * y_max
-
-    # check whether we have to split the analysis into different groups
-    # if not, create a fake group called "all"
-    if SPLIT_ANALYSIS_COLUMN is None:
-        groups = {'all': df}.items()
-    else:
-        groups = df.groupby(SPLIT_ANALYSIS_COLUMN)
-
-    # iterate over the groups for our split analysis
-    for groupname, df in groups:
-        print('Processing group {} = {}'.format(SPLIT_ANALYSIS_COLUMN if not None else "group", groupname))
-
-        if len(RELEVANT_PARAMETERS) == 0:
-            # swarm plot
-            plot = sns.swarmplot(y=TARGET_COLUMN, data=df)
-            fig = plot.get_figure()
-            plot.set_xticklabels(plot.get_xticklabels(), rotation=90)
-            plot.set_ylim([0, y_max])
-            plot.grid(axis='y')
-            fig.savefig(os.path.join(plot_path, '{}={}_swarmplot.png'.format(SPLIT_ANALYSIS_COLUMN, groupname)))
-            plt.clf()
-
-            # bar plot
-            plt.bar(0, df[TARGET_COLUMN].describe().loc['mean'], yerr=df[TARGET_COLUMN].describe().loc['std'])
-            plt.xlim([-1, 1])
-            plt.ylim([0, y_max])
-            plt.savefig(os.path.join(plot_path, '{}={}_barplot.png'.format(SPLIT_ANALYSIS_COLUMN, groupname)))
-            plt.clf()
-
-        elif len(RELEVANT_PARAMETERS) == 1:
-            relevant_col = RELEVANT_PARAMETERS[0]
-
-            # swarm plot
-            plot = sns.swarmplot(x=relevant_col, y=TARGET_COLUMN, data=df, order=VAR_ORDER)
-            fig = plot.get_figure()
-            plot.set_xticklabels(plot.get_xticklabels(), rotation=90)
-            plot.set_ylim([0, y_max])
-            plot.grid(axis='y')
-            fig.savefig(os.path.join(plot_path, '{}={}_swarmplot_{}.png'.format(SPLIT_ANALYSIS_COLUMN, groupname, relevant_col)))
-            plt.clf()
-
-            # bar plot
-            reduced_df = df.groupby(relevant_col)[TARGET_COLUMN].describe()
-            if not len(reduced_df.index) == len(VAR_ORDER):
-                raise Exception('There are values in VAR_ORDER that do not appear in the data: {}'.format(
-                    np.setdiff1d(VAR_ORDER, list(reduced_df.index))))
-            if VAR_ORDER is not None:
-                reduced_df = reduced_df.loc[VAR_ORDER]
-            reduced_df.plot.bar(y='mean', yerr='std')
-            plt.ylim([0, y_max])
-            plt.savefig(os.path.join(plot_path, '{}={}_barplot_{}.png'.format(SPLIT_ANALYSIS_COLUMN, groupname, relevant_col)))
-            plt.clf()
-
-        elif len(RELEVANT_PARAMETERS) > 1:
-            # average over runs with same parameters
-            df = df[RELEVANT_PARAMETERS + [TARGET_COLUMN]]
-            df = df.groupby(RELEVANT_PARAMETERS, as_index=False).agg(np.mean)
-            print("Best entry:")
-            if LOWER_IS_BETTER:
-                print(df.iloc[df[TARGET_COLUMN].idxmin()])
-            else:
-                print(df.iloc[df[TARGET_COLUMN].idxmax()])
-            parallel_coordinates(df, TARGET_COLUMN, lower_is_better=LOWER_IS_BETTER)
-            plt.savefig(os.path.join(plot_path, '{}={}_parallel_coordinates.svg'.format(SPLIT_ANALYSIS_COLUMN, groupname)))
