@@ -5,19 +5,18 @@ import os
 yaml = YAML()
 
 
-def collect_results(path, result_keys=()):
+def collect_results(path, save_df_to=None):
     """collect_results
     Goes through all the results directories, reads the parameters.yaml and program_state.yaml
     and writes the relevant values into a pandas dataframe
 
     :param path: str
         path to directory in which the result directories are
+    :param save_df_to: str or None, default None
+        if not None, save the resulting df to this path
     """
     result_dirs = os.listdir(path)
-    params_path = os.path.join(path, result_dirs[0], 'parameters.yaml')
-    with open(params_path, 'r') as f:
-        params = dict(yaml.load(f))
-        df = pd.DataFrame()
+    df = pd.DataFrame()
 
     for idx, dir_ in enumerate(sorted(result_dirs)):
         params_path = os.path.join(path, dir_, 'parameters.yaml')
@@ -40,12 +39,17 @@ def collect_results(path, result_keys=()):
         with open(params_path, 'r') as f:
             params = dict(yaml.load(f))
 
-        new_row = pd.Series(params)
-        for result_key in result_keys:
-            new_row[result_key] = program_state[result_key]
+        new_row = pd.concat([pd.Series(params), pd.Series(program_state)])
+        # it happens that the same value was saved in the program_state and
+        # the parameters (it shouldn't happen, but it does). So drop one of them
+        new_row = new_row[~new_row.index.duplicated()]
         df = df.append(new_row, ignore_index=True)
+
 
         if idx % 100 == 0:
             print("{} of {} done".format(str(idx).zfill(4), str(len(result_dirs)).zfill(4)))
+
+    if save_df_to is not None:
+        df.to_csv(save_df_to)
 
     return df
