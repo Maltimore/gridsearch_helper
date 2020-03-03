@@ -45,16 +45,8 @@ If some of your runs didn't finish yet but you can't wait and already wnat to pe
 ```python
 from gridsearch_analysis import collect_results
 
-# default values are being used if the run didn't finish yet and skip_unfinished_runs is False
-DEFAULT_VALUES = {}
-DEFAULT_VALUES['first_success'] = 150
-RESULT_KEYS = ('first_success',)
-skip_unfinished_runs = False
-
-df = collect_results.collect_results(
-	results_path, DEFAULT_VALUES, RESULT_KEYS, skip_unfinished_runs)
+df = collect_results.collect_results(results_path)
 ```
-
 
 Furthermore, ``gridsearch_analysis`` can also make plots of the collected results. It will plot the performance as measured by some variable ``target_column`` as a function of user-specified indpendent variables ``relevant_parameters``. The type of plot created depends on how many independent variables you specify. If you have:
 - 0  independent variables: create a swarm/barplot with a single group that contains all runs
@@ -66,15 +58,16 @@ There is also an option to split the analysis into separate parts via the values
 ```python
 from gridsearch_analysis import plotting
 
-# Specify which columns to plot as strings in a list. List can be empty.
+# Specify the relevant parameters by which the results are differentiated
 RELEVANT_PARAMETERS = ['name']  # list of strings (list can be empty)
 # what variable to use as performance measure
 TARGET_COLUMN = 'first_success'  # string
 # is the performance better when the target variable is lower or when it is higher?
+# this only makes a difference if you have 2+ relevant parameters and hence when a
+# parallel coordinates plot is created
 LOWER_IS_BETTER = True  # bool
 # split up the analysis into separate parts for unique values in this column
 SPLIT_ANALYSIS_COLUMN = None  # string or None
 
-plotting.plot(
-	df, plot_path, RELEVANT_PARAMETERS, TARGET_COLUMN, LOWER_IS_BETTER, SPLIT_ANALYSIS_COLUMN, VAR_ORDER)
+plotting.plot(df, plot_path, RELEVANT_PARAMETERS, TARGET_COLUMN, LOWER_IS_BETTER, SPLIT_ANALYSIS_COLUMN, VAR_ORDER)
 ```
