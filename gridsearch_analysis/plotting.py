@@ -77,7 +77,7 @@ def plot(df, plot_path, RELEVANT_PARAMETERS, TARGET_COLUMN, LOWER_IS_BETTER, SPL
             else:
                 print(df.iloc[df[TARGET_COLUMN].idxmax()])
             parallel_coordinates(df, TARGET_COLUMN, lower_is_better=LOWER_IS_BETTER)
-            plt.savefig(os.path.join(plot_path, '{}={}_parallel_coordinates.svg'.format(SPLIT_ANALYSIS_COLUMN, groupname)))
+            plt.savefig(os.path.join(plot_path, '{}={}_parallel_coordinates.png'.format(SPLIT_ANALYSIS_COLUMN, groupname)))
 
 
 def parallel_coordinates(df, target_column, lower_is_better=True, **kwds):
