@@ -35,6 +35,5 @@ if __name__ == '__main__':
     plot_path = os.path.join(args.path, 'plots')
     if not os.path.exists(plot_path):
         os.makedirs(plot_path)
-    plotting.plot(
-        df, plot_path, RELEVANT_PARAMETERS, TARGET_COLUMN, LOWER_IS_BETTER,
-        SPLIT_ANALYSIS_COLUMN, VAR_ORDER)
+    plotting.plot(df, plot_path, RELEVANT_PARAMETERS, TARGET_COLUMN,
+                  LOWER_IS_BETTER, SPLIT_ANALYSIS_COLUMN, VAR_ORDER)

@@ -8,7 +8,8 @@ import numpy as np
 import seaborn as sns
 
 
-def plot(df, plot_path, RELEVANT_PARAMETERS, TARGET_COLUMN, LOWER_IS_BETTER, SPLIT_ANALYSIS_COLUMN, VAR_ORDER):
+def plot(df, plot_path, RELEVANT_PARAMETERS, TARGET_COLUMN, LOWER_IS_BETTER,
+         SPLIT_ANALYSIS_COLUMN, VAR_ORDER):
     df[TARGET_COLUMN] = df[TARGET_COLUMN].astype('float64')
 
     # get the y_max as the maximum of the target column + 3% (for aesthetic)
@@ -24,7 +25,8 @@ def plot(df, plot_path, RELEVANT_PARAMETERS, TARGET_COLUMN, LOWER_IS_BETTER, SPL
 
     # iterate over the groups for our split analysis
     for groupname, df in groups:
-        print('Processing group {} = {}'.format(SPLIT_ANALYSIS_COLUMN if not None else "group", groupname))
+        print('Processing group {} = {}'.format(
+            SPLIT_ANALYSIS_COLUMN if not None else "group", groupname))
 
         if len(RELEVANT_PARAMETERS) == 0:
             # swarm plot
@@ -33,38 +35,60 @@ def plot(df, plot_path, RELEVANT_PARAMETERS, TARGET_COLUMN, LOWER_IS_BETTER, SPL
             plot.set_xticklabels(plot.get_xticklabels(), rotation=90)
             plot.set_ylim([0, y_max])
             plot.grid(axis='y')
-            fig.savefig(os.path.join(plot_path, '{}={}_swarmplot.png'.format(SPLIT_ANALYSIS_COLUMN, groupname)))
+            fig.savefig(
+                os.path.join(
+                    plot_path,
+                    '{}={}_swarmplot.png'.format(SPLIT_ANALYSIS_COLUMN,
+                                                 groupname)))
             plt.clf()
 
             # bar plot
-            plt.bar(0, df[TARGET_COLUMN].describe().loc['mean'], yerr=df[TARGET_COLUMN].describe().loc['std'])
+            plt.bar(0,
+                    df[TARGET_COLUMN].describe().loc['mean'],
+                    yerr=df[TARGET_COLUMN].describe().loc['std'])
             plt.xlim([-1, 1])
             plt.ylim([0, y_max])
-            plt.savefig(os.path.join(plot_path, '{}={}_barplot.png'.format(SPLIT_ANALYSIS_COLUMN, groupname)))
+            plt.savefig(
+                os.path.join(
+                    plot_path,
+                    '{}={}_barplot.png'.format(SPLIT_ANALYSIS_COLUMN,
+                                               groupname)))
             plt.clf()
 
         elif len(RELEVANT_PARAMETERS) == 1:
             relevant_col = RELEVANT_PARAMETERS[0]
 
             # swarm plot
-            plot = sns.swarmplot(x=relevant_col, y=TARGET_COLUMN, data=df, order=VAR_ORDER)
+            plot = sns.swarmplot(x=relevant_col,
+                                 y=TARGET_COLUMN,
+                                 data=df,
+                                 order=VAR_ORDER)
             fig = plot.get_figure()
             plot.set_xticklabels(plot.get_xticklabels(), rotation=90)
             plot.set_ylim([0, y_max])
             plot.grid(axis='y')
-            fig.savefig(os.path.join(plot_path, '{}={}_swarmplot_{}.png'.format(SPLIT_ANALYSIS_COLUMN, groupname, relevant_col)))
+            fig.savefig(
+                os.path.join(
+                    plot_path,
+                    '{}={}_swarmplot_{}.png'.format(SPLIT_ANALYSIS_COLUMN,
+                                                    groupname, relevant_col)))
             plt.clf()
 
             # bar plot
             reduced_df = df.groupby(relevant_col)[TARGET_COLUMN].describe()
             if not len(reduced_df.index) == len(VAR_ORDER):
-                raise Exception('There are values in VAR_ORDER that do not appear in the data: {}'.format(
-                    np.setdiff1d(VAR_ORDER, list(reduced_df.index))))
+                raise Exception(
+                    'There are values in VAR_ORDER that do not appear in the data: {}'
+                    .format(np.setdiff1d(VAR_ORDER, list(reduced_df.index))))
             if VAR_ORDER is not None:
                 reduced_df = reduced_df.loc[VAR_ORDER]
             reduced_df.plot.bar(y='mean', yerr='std')
             plt.ylim([0, y_max])
-            plt.savefig(os.path.join(plot_path, '{}={}_barplot_{}.png'.format(SPLIT_ANALYSIS_COLUMN, groupname, relevant_col)))
+            plt.savefig(
+                os.path.join(
+                    plot_path,
+                    '{}={}_barplot_{}.png'.format(SPLIT_ANALYSIS_COLUMN,
+                                                  groupname, relevant_col)))
             plt.clf()
 
         elif len(RELEVANT_PARAMETERS) > 1:
@@ -76,8 +100,13 @@ def plot(df, plot_path, RELEVANT_PARAMETERS, TARGET_COLUMN, LOWER_IS_BETTER, SPL
                 print(df.iloc[df[TARGET_COLUMN].idxmin()])
             else:
                 print(df.iloc[df[TARGET_COLUMN].idxmax()])
-            parallel_coordinates(df, TARGET_COLUMN, lower_is_better=LOWER_IS_BETTER)
-            plt.savefig(os.path.join(plot_path, '{}={}_parallel_coordinates.png'.format(SPLIT_ANALYSIS_COLUMN, groupname)))
+            parallel_coordinates(df,
+                                 TARGET_COLUMN,
+                                 lower_is_better=LOWER_IS_BETTER)
+            plt.savefig(
+                os.path.join(
+                    plot_path, '{}={}_parallel_coordinates.png'.format(
+                        SPLIT_ANALYSIS_COLUMN, groupname)))
 
 
 def parallel_coordinates(df, target_column, lower_is_better=True, **kwds):
@@ -86,7 +115,8 @@ def parallel_coordinates(df, target_column, lower_is_better=True, **kwds):
 
     # process target column for plotting
     target_colors = df[target_column]
-    target_colors = np.true_divide(target_colors - target_colors.min(), np.ptp(target_colors))
+    target_colors = np.true_divide(target_colors - target_colors.min(),
+                                   np.ptp(target_colors))
     if lower_is_better:
         target_colors = (target_colors - 1) * (-1)
     # sort df such that during plotting the better ones are drawn over the others
@@ -98,7 +128,10 @@ def parallel_coordinates(df, target_column, lower_is_better=True, **kwds):
     x_ticks = list(range(len(cols)))
 
     # Create (X-1) sublots along x axis
-    fig, axes = plt.subplots(1, len(x_ticks) - 1, sharey=False, figsize=(15, 5))
+    fig, axes = plt.subplots(1,
+                             len(x_ticks) - 1,
+                             sharey=False,
+                             figsize=(15, 5))
     # handle case X-1 == 1, in which case axes is not a list
     if len(x_ticks) - 1 == 1:
         axes = [axes]
@@ -108,7 +141,8 @@ def parallel_coordinates(df, target_column, lower_is_better=True, **kwds):
     tick_dict = {}
     for col in cols:
         tick_dict[col] = {}
-        if type(df[col][0]) is str:  # treat variables of type string as categorical
+        if type(df[col]
+                [0]) is str:  # treat variables of type string as categorical
             df[col] = df[col].astype('category')
             codes = df[col].cat.codes.copy()
             codes = np.true_divide(codes - codes.min(), np.ptp(codes))
@@ -129,11 +163,16 @@ def parallel_coordinates(df, target_column, lower_is_better=True, **kwds):
         # loop over lines
         for idx in df.index:
             y = target_colors[idx]
-            ax.plot(x_ticks, df.loc[idx, cols], color=cm.viridis(y), linewidth=3)
+            ax.plot(x_ticks,
+                    df.loc[idx, cols],
+                    color=cm.viridis(y),
+                    linewidth=3)
         ax.set_xlim([x_ticks[i], x_ticks[i + 1]])
 
     norm = mpl.colors.Normalize(vmin=minimum_target, vmax=maximum_target)
-    cmap = mpl.cm.ScalarMappable(norm=norm, cmap=mpl.cm.viridis_r if lower_is_better else mpl.cm.viridis)
+    cmap = mpl.cm.ScalarMappable(
+        norm=norm,
+        cmap=mpl.cm.viridis_r if lower_is_better else mpl.cm.viridis)
     cmap.set_array([])
     fig.subplots_adjust(right=0.8)
     cbar_ax = fig.add_axes([0.85, 0.15, 0.05, 0.7])

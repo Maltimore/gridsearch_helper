@@ -1,6 +1,7 @@
 import time
 start_time = time.time()
-print("Start time: {}".format(time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(start_time))))
+print("Start time: {}".format(
+    time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(start_time))))
 import os
 import uuid
 import itertools
@@ -55,10 +56,7 @@ run_id = str(uuid.uuid1())
 print('Random run ID is: {}'.format(run_id))
 
 # create output paths and corresponding directories
-data_dir = os.path.join(
-    os.getcwd(),
-    'outfiles',
-    str(os.environ['JOB_NAME']))
+data_dir = os.path.join(os.getcwd(), 'outfiles', str(os.environ['JOB_NAME']))
 full_output_path = os.path.join(
     data_dir,
     'full_outputs',
@@ -89,5 +87,6 @@ main.main(params)
 
 end_time = time.time()
 run_time = end_time - start_time
-print("End time: {}".format(time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(end_time))))
+print("End time: {}".format(
+    time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(end_time))))
 print("Run time (seconds): {}".format(run_time), flush=True)

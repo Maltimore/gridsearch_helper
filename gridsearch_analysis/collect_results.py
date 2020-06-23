@@ -26,7 +26,8 @@ def collect_results(path):
             print('Skipping {}.. because no params file'.format(dir_[:15]))
             continue
         if not os.path.exists(program_state_path):
-            print('Skipping {}.. because no program_state file'.format(dir_[:15]))
+            print('Skipping {}.. because no program_state file'.format(
+                dir_[:15]))
             continue
 
         with open(program_state_path) as f:
@@ -45,8 +46,9 @@ def collect_results(path):
         new_row = new_row[~new_row.index.duplicated()]
         df = df.append(new_row, ignore_index=True)
 
-
         if idx % 100 == 0:
-            print("{} of {} done".format(str(idx).zfill(4), str(len(result_dirs)).zfill(4)))
+            print("{} of {} done".format(
+                str(idx).zfill(4),
+                str(len(result_dirs)).zfill(4)))
 
     return df
