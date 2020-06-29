@@ -28,6 +28,13 @@ job_name="$4"
 python_main_file=$(readlink -f $python_main_file)
 python_main_file_dir=$(dirname "$python_main_file")
 
+# make output directory
+output_dir=./outfiles/"$job_name"
+mkdir --parents "$output_dir"
+
+# copy parameters file into output directory
+cp "$python_main_file_dir"/parameters.yaml "$output_dir"/parameters.yaml
+
 # Clear text output directory? (Ask only if it exists)
 if [ -d "./textoutput/$job_name" ]; then
 	echo "Shall I clear the folders with output and error text? [y/n] (default: y)"
@@ -42,7 +49,7 @@ fi
 # if textoutput directory doesn't exist, create it
 if [ ! -d "./textoutput/$job_name" ]; then
 	echo "Creating textoutput directory textoutput"
-	mkdir -p ./textoutput/"$job_name"
+	mkdir --parents ./textoutput/"$job_name"
 fi
 
 # start the actual jobs via the qsub command. We pass here the SGE_entry.sh script as the
