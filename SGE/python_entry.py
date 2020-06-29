@@ -8,6 +8,7 @@ import uuid
 import itertools
 from ruamel.yaml import YAML
 import sys
+import platform
 
 # the content of sys.argv[1] is the directory of the desired main.py file
 main_dot_py_dir = sys.argv[1]
@@ -69,7 +70,8 @@ if not os.path.exists(output_path):
 program_state = {
     "output_path": output_path,
     "gridsearch": True,
-    "run_uuid": run_uuid
+    "run_uuid": run_uuid,
+    "hostname": platform.uname()[1],
 }
 
 # dump selected params and program_state
