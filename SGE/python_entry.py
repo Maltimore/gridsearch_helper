@@ -3,6 +3,7 @@ start_time = time.time()
 print("Start time: {}".format(
     time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(start_time))))
 import os
+import pathlib
 import uuid
 import itertools
 from ruamel.yaml import YAML
@@ -47,9 +48,7 @@ def assign_gridsearch_hyperparameters(id_, params):
             id_ -= len(parametercombos)
 
 
-params_path = os.path.join(main_dot_py_dir, 'parameters.yaml')
-with open(params_path, 'r') as f:
-    params = dict(yaml.load(f))
+params = yaml.load(pathlib.Path(main_dot_py_dir, 'parameters.yaml'))
 params = assign_gridsearch_hyperparameters(task_id, params)
 
 run_uuid = str(uuid.uuid1())
@@ -74,10 +73,8 @@ program_state = {
 }
 
 # dump selected params and program_state
-with open(os.path.join(output_path, 'parameters.yaml'), 'w') as f:
-    yaml.dump(params, f)
-with open(os.path.join(output_path, 'program_state.yaml'), 'w') as f:
-    yaml.dump(program_state, f)
+yaml.dump(params, pathlib.Path(output_path, 'parameters.yaml'))
+yaml.dump(program_state, pathlib.Path(output_path, 'program_state.yaml'))
 
 print("Parameters:")
 print(params)
