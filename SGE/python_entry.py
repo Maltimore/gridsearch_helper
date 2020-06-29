@@ -52,8 +52,8 @@ with open(params_path, 'r') as f:
     params = dict(yaml.load(f))
 params = assign_gridsearch_hyperparameters(task_id, params)
 
-run_id = str(uuid.uuid1())
-print('Random run ID is: {}'.format(run_id))
+run_uuid = str(uuid.uuid1())
+print('Random run ID is: {}'.format(run_uuid))
 
 # create output paths and corresponding directories
 output_path = os.path.join(
@@ -61,7 +61,7 @@ output_path = os.path.join(
     'outfiles',
     str(os.environ['JOB_NAME']),
     "job_outputs",
-    str(task_id).zfill(4) + '_' + run_id,
+    str(task_id).zfill(4) + '_' + run_uuid,
 )
 
 if not os.path.exists(output_path):
@@ -69,7 +69,8 @@ if not os.path.exists(output_path):
 
 program_state = {
     "output_path": output_path,
-    "gridsearch": True
+    "gridsearch": True,
+    "run_uuid": run_uuid
 }
 
 # dump selected params and program_state
