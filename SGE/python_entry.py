@@ -56,11 +56,14 @@ run_id = str(uuid.uuid1())
 print('Random run ID is: {}'.format(run_id))
 
 # create output paths and corresponding directories
-gridsearch_root_output_dir = os.path.join(os.getcwd(), 'outfiles', str(os.environ['JOB_NAME']))
 output_path = os.path.join(
-    gridsearch_root_output_dir,
+    os.getcwd(),
+    'outfiles',
+    str(os.environ['JOB_NAME']),
+    "job_outputs",
     str(task_id).zfill(4) + '_' + run_id,
 )
+
 if not os.path.exists(output_path):
     os.makedirs(output_path)
 
