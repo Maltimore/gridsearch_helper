@@ -64,17 +64,21 @@ output_path = os.path.join(
 if not os.path.exists(output_path):
     os.makedirs(output_path)
 
-params['output_path'] = output_path
-params['gridsearch'] = True
+program_state = {
+    "output_path": output_path,
+    "gridsearch": True
+}
 
-# dump selected params
+# dump selected params and program_state
 with open(os.path.join(output_path, 'parameters.yaml'), 'w') as f:
     yaml.dump(params, f)
+with open(os.path.join(output_path, 'program_state.yaml'), 'w') as f:
+    yaml.dump(program_state, f)
 
 print("Parameters:")
 print(params)
 print("Running main.main()", flush=True)
-main.main(params)
+main.main(params, program_state)
 
 end_time = time.time()
 run_time = end_time - start_time
