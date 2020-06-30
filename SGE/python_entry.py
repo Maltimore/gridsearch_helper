@@ -93,6 +93,7 @@ program_state = {
     "gridsearch": True,
     "run_uuid": run_uuid,
     "hostname": platform.uname()[1],
+    "run_finished": False,
 }
 yaml.dump(program_state, pathlib.Path(output_path, 'program_state.yaml'))
 
@@ -109,5 +110,7 @@ print("Run time (seconds): {}".format(run_time), flush=True)
 
 program_state["end_time"] = time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(end_time))
 program_state["run_time"] = time.strftime('%H:%M:%S', time.gmtime(run_time))
+program_state["run_finished"] = True
 
 yaml.dump(program_state, pathlib.Path(output_path, 'program_state.yaml'))
+print("python_entry.py exits now.", flush=True)
