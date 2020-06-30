@@ -68,6 +68,7 @@ if not os.path.exists(output_path):
     os.makedirs(output_path)
 
 program_state = {
+    "start_time": time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(start_time)),
     "output_path": output_path,
     "gridsearch": True,
     "run_uuid": run_uuid,
@@ -88,3 +89,8 @@ run_time = end_time - start_time
 print("End time: {}".format(
     time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(end_time))))
 print("Run time (seconds): {}".format(run_time), flush=True)
+
+program_state["end_time"] = time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(end_time))
+program_state["run_time"] = time.strftime('%H:%M:%S', time.gmtime(run_time))
+
+yaml.dump(program_state, pathlib.Path(output_path, 'program_state.yaml'))
