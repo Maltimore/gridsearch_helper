@@ -51,12 +51,19 @@ def assign_gridsearch_hyperparameters(id_, params):
             id_ -= len(parametercombos)
 
 
-def get_git_revision_hash():
+def get_git_info():
     try:
-        return subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode('utf-8').strip('\n')
+        return_dict = {
+            "git_hash": subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode('utf-8').strip('\n'),
+            "git_status":  subprocess.check_output(['git', 'status']).decode('utf-8'),
+        }
     except Exception:
         warnings.warn('\nWarning! Failed to get git revision hash!\n')
-        return('FAILED_to_get_git_revision_hash')
+        return_dict = {
+            "git_hash": "failed_to_get",
+            "git_status": "failed_to_get"
+        }
+    return return_dict
 
 
 params = yaml.load(pathlib.Path(main_dot_py_dir, 'parameters.yaml'))
@@ -76,18 +83,17 @@ output_path = os.path.join(
 
 if not os.path.exists(output_path):
     os.makedirs(output_path)
+yaml.dump(params, pathlib.Path(output_path, 'parameters.yaml'))
 
 program_state = {
     "start_time": time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(start_time)),
     "output_path": output_path,
-    "git_hash": get_git_revision_hash(),
+    "git_hash": get_git_info()["git_hash"],
+    "git_status": get_git_info()["git_status"],
     "gridsearch": True,
     "run_uuid": run_uuid,
     "hostname": platform.uname()[1],
 }
-
-# dump selected params and program_state
-yaml.dump(params, pathlib.Path(output_path, 'parameters.yaml'))
 yaml.dump(program_state, pathlib.Path(output_path, 'program_state.yaml'))
 
 print("Parameters:")
