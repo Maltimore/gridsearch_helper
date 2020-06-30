@@ -9,6 +9,8 @@ import itertools
 from ruamel.yaml import YAML
 import sys
 import platform
+import subprocess
+import warnings
 
 # the content of sys.argv[1] is the directory of the desired main.py file
 main_dot_py_dir = sys.argv[1]
@@ -49,6 +51,14 @@ def assign_gridsearch_hyperparameters(id_, params):
             id_ -= len(parametercombos)
 
 
+def get_git_revision_hash():
+    try:
+        return subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode('utf-8').strip('\n')
+    except Exception:
+        warnings.warn('\nWarning! Failed to get git revision hash!\n')
+        return('FAILED_to_get_git_revision_hash')
+
+
 params = yaml.load(pathlib.Path(main_dot_py_dir, 'parameters.yaml'))
 params = assign_gridsearch_hyperparameters(task_id, params)
 
@@ -70,6 +80,7 @@ if not os.path.exists(output_path):
 program_state = {
     "start_time": time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(start_time)),
     "output_path": output_path,
+    "git_hash": get_git_revision_hash(),
     "gridsearch": True,
     "run_uuid": run_uuid,
     "hostname": platform.uname()[1],
