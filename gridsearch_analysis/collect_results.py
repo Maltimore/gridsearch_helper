@@ -44,6 +44,8 @@ def collect_results(path):
         # it happens that the same value was saved in the program_state and
         # the parameters (it shouldn't happen, but it does). So drop one of them
         new_row = new_row[~new_row.index.duplicated()]
+        # TODO: for big dataframes this will get very slow because the entire
+        # dataframe has to be copied on each append
         df = df.append(new_row, ignore_index=True)
 
         if idx % 100 == 0:
