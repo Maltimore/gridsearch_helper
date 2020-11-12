@@ -1,5 +1,4 @@
 #! /bin/bash
-#$ -cwd
 #$ -V
 #$ -l h_vmem=20G
 #$ -l h_rt=02:00:00

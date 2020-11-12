@@ -71,4 +71,5 @@ fi
 
 # start the actual jobs via the qsub command. We pass here the SGE_entry.sh script as the
 # script that should be executed by qsub
+# -N is for the name
 qsub -cwd -N "$job_name" -t "$taskrange_begin"-"$taskrange_end" "$script_dir"/SGE_entry.sh "$script_dir" "$python_main_file_dir"
