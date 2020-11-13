@@ -2,6 +2,7 @@
 #$ -V
 #$ -l h_vmem=20G
 #$ -l h_rt=02:00:00
+#$ -binding linear:3
 #$ -o ./textoutput/$JOB_NAME/$TASK_ID.out
 #$ -e ./textoutput/$JOB_NAME/$TASK_ID.error
 
@@ -16,8 +17,8 @@
 
 # Jobs that do not specify an elapsed time limit inherit a system default. The default is necessary for the Advance Reservation system to assure resource availability. 
 
-echo "hello from SGE_entry.sh"
-echo "$0"
-echo "$1"
-echo "$2"
-singularity exec ~/ubuntu_20.04.sif "$1"/sing.sh "$1" "$2"
+echo "In from SGE_entry.sh"
+echo Calling script: "$0"
+echo gridsearch/SGE folder location: "$1"
+echo Path to main file: "$2"
+singularity exec ~/ray_latest.sif "$1"/sing.sh "$1" "$2"
