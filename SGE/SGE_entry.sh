@@ -3,6 +3,7 @@
 #$ -l h_vmem=20G
 #$ -l h_rt=02:00:00
 #$ -binding linear:3
+#$ -l h="!node08"
 #$ -o ./textoutput/$JOB_NAME/$TASK_ID.out
 #$ -e ./textoutput/$JOB_NAME/$TASK_ID.error
 
@@ -12,6 +13,9 @@
 # -l h_vmem=50G : amount of RAM to reserve for the job
 # -l h_rt=hour:minute:seconds : Hard runtime limit. After the specified hard runtime limit, Sun Grid Engine aborts the job using the SIGKILL signal.
 # -l s_rt=hour:minute:seconds : Soft limit is reached, Sun Grid Engine warns the job by sending the job the SIGUSR1 signal.
+# -binding linear:3  : use 3 cpu cores
+# -l h=nodeXX  : run on nodeXX
+# -l h=!nodeXX  : exclude nodeXX
 # -o /path/ : where to put stdout
 # -e /path/ : where to put sderr
 
