@@ -1,18 +1,19 @@
 #! /bin/bash
 #$ -V
-#$ -l h_vmem=20G
-#$ -l h_rt=02:00:00
+#$ -l h_vmem=5G
+#$ -l h_rt=04:00:00
 #$ -binding linear:3
 #$ -l h="!node08"
 #$ -o ./textoutput/$JOB_NAME/$TASK_ID.out
 #$ -e ./textoutput/$JOB_NAME/$TASK_ID.error
 
 # EXPLANATION SOME PARAMETERS
-# -cwd : run job in the current directory
+# -cwd : run job in the current directory (has no effect here! needs to be passed in the calling script)
 # -V : take over currently active environment variables for the job
 # -l h_vmem=50G : amount of RAM to reserve for the job
 # -l h_rt=hour:minute:seconds : Hard runtime limit. After the specified hard runtime limit, Sun Grid Engine aborts the job using the SIGKILL signal.
 # -l s_rt=hour:minute:seconds : Soft limit is reached, Sun Grid Engine warns the job by sending the job the SIGUSR1 signal.
+# -l cuda=1  : reserve a GPU
 # -binding linear:3  : use 3 cpu cores
 # -l h=nodeXX  : run on nodeXX
 # -l h=!nodeXX  : exclude nodeXX
