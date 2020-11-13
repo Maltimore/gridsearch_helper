@@ -2,8 +2,9 @@
 #$ -V
 #$ -l h_vmem=5G
 #$ -l h_rt=04:00:00
-#$ -binding linear:3
+#$ -binding linear:2
 #$ -l h="!node08"
+#$ -l h="!node12"
 #$ -o ./textoutput/$JOB_NAME/$TASK_ID.out
 #$ -e ./textoutput/$JOB_NAME/$TASK_ID.error
 
