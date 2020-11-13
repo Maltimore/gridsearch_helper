@@ -16,7 +16,8 @@
 
 # Jobs that do not specify an elapsed time limit inherit a system default. The default is necessary for the Advance Reservation system to assure resource availability. 
 
-# $1 is the directory that this script is in. We get it passed as a cli argument by the calling script,
-# because the SGE_entry script is not *actually* in this directory. Qsub puts this file into another directory.
-# $2 is the directory that the main.py file of the program we're supposed to run is in
-python "$1"/python_entry.py "$2"
+echo "hello from SGE_entry.sh"
+echo "$0"
+echo "$1"
+echo "$2"
+singularity exec ~/ubuntu_20.04.sif "$1"/sing.sh "$1" "$2"
