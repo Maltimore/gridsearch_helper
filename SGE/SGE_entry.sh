@@ -20,5 +20,5 @@
 echo "In from SGE_entry.sh"
 echo Calling script: "$0"
 echo gridsearch/SGE folder location: "$1"
-echo Path to main file: "$2"
+echo Path to main file folder: "$2"
 singularity exec ~/ray_latest.sif "$1"/sing.sh "$1" "$2"
