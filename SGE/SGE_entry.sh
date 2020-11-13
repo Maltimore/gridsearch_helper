@@ -17,7 +17,8 @@
 
 # Jobs that do not specify an elapsed time limit inherit a system default. The default is necessary for the Advance Reservation system to assure resource availability. 
 
-echo "In from SGE_entry.sh"
+echo "In SGE_entry.sh"
+echo Hostname: `hostname`
 echo Calling script: "$0"
 echo gridsearch/SGE folder location: "$1"
 echo Path to main file folder: "$2"
