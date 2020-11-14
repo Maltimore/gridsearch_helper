@@ -5,8 +5,6 @@
 #$ -binding linear:2
 #$ -l h="!node08"
 #$ -l h="!node12"
-#$ -o ./textoutput/$JOB_NAME/$TASK_ID.out
-#$ -e ./textoutput/$JOB_NAME/$TASK_ID.error
 
 # EXPLANATION SOME PARAMETERS
 # -cwd : run job in the current directory (has no effect here! needs to be passed in the calling script)
@@ -23,9 +21,9 @@
 
 # Jobs that do not specify an elapsed time limit inherit a system default. The default is necessary for the Advance Reservation system to assure resource availability. 
 
+output_path="$1"
 echo "In SGE_entry.sh"
 echo Hostname: `hostname`
 echo Calling script: "$0"
-echo gridsearch/SGE folder location: "$1"
-echo Path to main file folder: "$2"
-singularity exec ~/ray_latest.sif "$1"/sing.sh "$1" "$2"
+echo output path: $output_path
+singularity exec ~/ray_latest.sif src/sing.sh $output_path

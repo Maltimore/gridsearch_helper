@@ -3,7 +3,6 @@ echo "Hello from sing.sh"
 # add .bin and programs to PATH
 export PATH="$HOME"/.local/bin:"$HOME"/programs/:$PATH
 export PYTHONPATH="$HOME"/.local/bin:$PYTHONPATH
-export EDITOR=vi
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
@@ -22,8 +21,4 @@ unset __conda_setup
 
 conda activate py38
 
-# $1 is the directory that this script is in. We get it passed as a cli argument by the calling script,
-# because the SGE_entry script is not *actually* in this directory. Qsub puts this file into another directory.
-# $2 is the directory that the main.py file of the program we're supposed to run is in
-echo "Calling $1/python_entry.py now"
-python "$1"/python_entry.py "$2"
+python src/main.py --path="$1"
