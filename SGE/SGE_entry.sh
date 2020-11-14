@@ -23,7 +23,9 @@
 
 output_path="$1"
 echo "In SGE_entry.sh"
+echo Current working directory: `pwd`
 echo Hostname: `hostname`
 echo Calling script: "$0"
-echo output path: $output_path
-singularity exec ~/ray_latest.sif src/sing.sh $output_path
+echo Output path: $output_path
+echo Now calling singularity
+singularity exec ~/ray_latest.sif ./src/sing.sh $output_path
