@@ -94,6 +94,7 @@ program_state = {
     "run_uuid": run_uuid,
     "hostname": platform.uname()[1],
     "run_finished": False,
+    "task_id": task_id,
 }
 yaml.dump(program_state, pathlib.Path(output_path, 'program_state.yaml'))
 
