@@ -23,12 +23,20 @@
 
 # Jobs that do not specify an elapsed time limit inherit a system default. The default is necessary for the Advance Reservation system to assure resource availability. 
 
-output_path="$1"
+echo Now in SGE_entry.sh
+
+gridsearch="$1"
+if [ $gridsearch == "is_not_gridsearch" ]; then
+    output_path="$2"
+else
+    echo This is a gridsearch
+    output_path="$2"/job_outputs/`printf "%05d" $SGE_TASK_ID`
+fi
+echo The output path is $output_path
 params_path=$output_path/parameters.yaml
-echo "In SGE_entry.sh"
+
 echo Current working directory: `pwd`
 echo Hostname: `hostname`
-echo Calling script: "$0"
-echo Output path: $output_path
+
 echo Now calling singularity
 singularity exec ~/ray_latest.sif ./src/sing.sh $output_path $params_path

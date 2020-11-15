@@ -7,9 +7,20 @@ import itertools
 import platform
 import subprocess
 import warnings
+import copy
 
-task_id = int(os.environ['SGE_TASK_ID'])
-print("In python_entry.py, task_id is {}".format(task_id))
+
+def flatten_dict(thed):
+    thed = copy.deepcopy(thed)
+    to_flatten = {}
+    for key in thed.keys():
+        if isinstance(thed[key], dict):
+            flattened = flatten_dict(thed[key])
+            for key2 in flattened.keys():
+                to_flatten[(key,) + key2] = flattened[key2]
+        else:
+            to_flatten[(key,)] = thed[key]
+    return to_flatten
 
 
 def assign_hyperparams(id_, params):
@@ -22,22 +33,31 @@ def assign_hyperparams(id_, params):
     :returns params: returns a copy of params with list-values replaced by
         list items corresponding to the relevant hyperparameter combination.
     """
-    params = params.copy()
     gridsearch_params = params['gridsearch']
-    params = params['default']
+    flattened_gridsearch_params = flatten_dict(gridsearch_params)
+    param_combo = list(itertools.product(*flattened_gridsearch_params.values()))[id_ - 1]
+    for key_idx, key in enumerate(flattened_gridsearch_params.keys()):
+        if len(key) == 2:
+            params['default'][key[1]] = param_combo[key_idx]
+        else:
+            subdict = params['default'][key[1]]
+            for subkey in key[2:-1]:
+                subdict = subdict[subkey]
+            subdict[key[-1]] = param_combo[key_idx]
+    return params
     # The following determines how many parameter combos there are
     # It then selects the parameter combo based on task_id
-    while True:
-        for config in gridsearch_params.keys():
-            param_names, param_values = zip(*gridsearch_params[config].items())
-            # get all parameter combinations with the cartesian product
-            parametercombos = list(itertools.product(*param_values))
-            if (id_ - 1) < len(parametercombos):
-                parametercombo = parametercombos[id_ - 1]
-                for idx, key in enumerate(param_names):
-                    params[key] = parametercombo[idx]
-                return params
-            id_ -= len(parametercombos)
+#    while True:
+#        for config in gridsearch_params.keys():
+#            param_names, param_values = zip(*gridsearch_params[config].items())
+#            # get all parameter combinations with the cartesian product
+#            parametercombos = list(itertools.product(*param_values))
+#            if (id_ - 1) < len(parametercombos):
+#                parametercombo = parametercombos[id_ - 1]
+#                for idx, key in enumerate(param_names):
+#                    params[key] = parametercombo[idx]
+#                return params
+#            id_ -= len(parametercombos)
 
 
 def get_git_info():
@@ -55,11 +75,10 @@ def get_git_info():
     return return_dict
 
 
-
 def get_run_info():
+    task_id = int(os.environ['SGE_TASK_ID'])
     run_info = {
         "start_time": time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(start_time)),
-        "output_path": output_path,
         "git_hash": get_git_info()["git_hash"],
         "git_status": get_git_info()["git_status"],
         "gridsearch": True,
@@ -67,6 +86,7 @@ def get_run_info():
         "run_finished": False,
         "task_id": task_id,
     }
+    return run_info
 
 #print("Parameters:")
 #print(params)

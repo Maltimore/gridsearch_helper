@@ -2,8 +2,13 @@ import sys
 import os
 import argparse
 import shutil
+from ruamel.yaml import YAML
+import pathlib
+import copy
 
-#import python_entry
+yaml = YAML()
+
+import util
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--launch_script',
@@ -40,9 +45,19 @@ if not os.path.exists(output_path):
 gridsearch = True if args.taskrange_end - args.taskrange_begin > 0 else False
 if not gridsearch:
     shutil.copyfile(args.params_path, os.path.join(output_path, 'parameters.yaml'))
-#####
-##### python_entry stuff
-#####
+else:
+    # this is a gridsearch
+    params = yaml.load(pathlib.Path(args.params_path))
+    if not os.path.exists(os.path.join(output_path, 'job_outputs')):
+        os.makedirs(os.path.join(output_path, 'job_outputs'))
+
+    for job_idx in range(args.taskrange_begin, args.taskrange_end + 1):
+        job_output_dir = os.path.join(output_path, 'job_outputs', str(job_idx).zfill(5))
+        if not os.path.exists(job_output_dir):
+            os.makedirs(job_output_dir)
+        job_params = util.assign_hyperparams(job_idx, copy.deepcopy(params))
+        yaml.dump(job_params, pathlib.Path(job_output_dir, 'parameters.yaml'))
+
 
 repository_copy_path = os.path.join(output_path, 'repository')
 if not os.path.exists(repository_copy_path):
@@ -65,16 +80,16 @@ print(f'Switching to repository directory {repository_copy_path}')
 os.chdir(repository_copy_path)
 print(f'Now in {os.getcwd()}')
 
-os.environ['OUTPUT_PATH'] = output_path
 qsub_command = (
-    f'export OUTPUT_PATH="{output_path}" && ' +
     'qsub ' +
     '-cwd ' +
     f'-N {args.job_name} ' +
     f'-t {args.taskrange_begin}-{args.taskrange_end} ' +
-    f'{args.launch_script} ' +
-    f'{output_path}'
+    f'{args.launch_script} '
 )
+qsub_command += 'is_gridsearch ' if gridsearch else 'is_not_gridsearch '
+qsub_command += f'{output_path}'
+
 print('Running the following qsub command now')
 print(qsub_command)
 os.system(qsub_command)
