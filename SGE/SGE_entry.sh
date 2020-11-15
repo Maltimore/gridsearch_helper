@@ -24,10 +24,11 @@
 # Jobs that do not specify an elapsed time limit inherit a system default. The default is necessary for the Advance Reservation system to assure resource availability. 
 
 output_path="$1"
+params_path=$output_path/parameters.yaml
 echo "In SGE_entry.sh"
 echo Current working directory: `pwd`
 echo Hostname: `hostname`
 echo Calling script: "$0"
 echo Output path: $output_path
 echo Now calling singularity
-singularity exec ~/ray_latest.sif ./src/sing.sh $output_path
+singularity exec ~/ray_latest.sif ./src/sing.sh $output_path $params_path

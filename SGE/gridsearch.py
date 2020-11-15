@@ -1,6 +1,7 @@
 import sys
 import os
 import argparse
+import shutil
 
 #import python_entry
 
@@ -35,6 +36,10 @@ if not os.path.exists(output_path):
     os.makedirs(output_path)
     os.makedirs(os.path.join(output_path, 'stdin_and_out'))
 
+
+gridsearch = True if args.taskrange_end - args.taskrange_begin > 0 else False
+if not gridsearch:
+    shutil.copyfile(args.params_path, os.path.join(output_path, 'parameters.yaml'))
 #####
 ##### python_entry stuff
 #####
