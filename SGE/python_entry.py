@@ -4,19 +4,15 @@ print("Start time: {}".format(
     time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(start_time))))
 import os
 import pathlib
-import uuid
+import sys
 import itertools
 from ruamel.yaml import YAML
-import sys
 import platform
 import subprocess
 import warnings
 
-# the content of sys.argv[1] is the directory of the desired main.py file
-main_dot_py_dir = sys.argv[1]
-sys.path.append(main_dot_py_dir)
-import main
 
+output_path = sys.argv[1]
 yaml = YAML()
 
 task_id = int(os.environ['SGE_TASK_ID'])
@@ -66,52 +62,34 @@ def get_git_info():
     return return_dict
 
 
-params = yaml.load(pathlib.Path(main_dot_py_dir, 'parameters.yaml'))
+params = yaml.load("parameters.yaml")
 params = assign_gridsearch_hyperparameters(task_id, params)
 
-run_uuid = str(uuid.uuid1())
-print('Random run ID is: {}'.format(run_uuid))
-
-# create output paths and corresponding directories
-output_path = os.path.join(
-    os.getcwd(),
-    'outfiles',
-    str(os.environ['JOB_NAME']),
-    "job_outputs",
-    str(task_id).zfill(4) + '_' + run_uuid,
-)
-
-if not os.path.exists(output_path):
-    os.makedirs(output_path)
 yaml.dump(params, pathlib.Path(output_path, 'parameters.yaml'))
 
-program_state = {
+run_info = {
     "start_time": time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(start_time)),
     "output_path": output_path,
     "git_hash": get_git_info()["git_hash"],
     "git_status": get_git_info()["git_status"],
     "gridsearch": True,
-    "run_uuid": run_uuid,
     "hostname": platform.uname()[1],
     "run_finished": False,
     "task_id": task_id,
 }
-yaml.dump(program_state, pathlib.Path(output_path, 'program_state.yaml'))
+yaml.dump(run_info, pathlib.Path(output_path, 'run_info.yaml'))
 
-print("Parameters:")
-print(params)
-print("Running main.main()", flush=True)
-main.main(params, program_state)
-
-end_time = time.time()
-run_time = end_time - start_time
-print("End time: {}".format(
-    time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(end_time))))
-print("Run time (seconds): {}".format(run_time), flush=True)
-
-program_state["end_time"] = time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(end_time))
-program_state["run_time"] = time.strftime('%H:%M:%S', time.gmtime(run_time))
-program_state["run_finished"] = True
-
-yaml.dump(program_state, pathlib.Path(output_path, 'program_state.yaml'))
-print("python_entry.py exits now.", flush=True)
+#print("Parameters:")
+#print(params)
+#print("Running main.main()", flush=True)
+#main.main(params, program_state)
+#
+#end_time = time.time()
+#run_time = end_time - start_time
+#print("End time: {}".format(
+#    time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(end_time))))
+#print("Run time (seconds): {}".format(run_time), flush=True)
+#
+#program_state["end_time"] = time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(end_time))
+#program_state["run_time"] = time.strftime('%H:%M:%S', time.gmtime(run_time))
+#program_state["run_finished"] = True
