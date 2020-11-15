@@ -5,6 +5,8 @@
 #$ -binding linear:2
 #$ -l h="!node08"
 #$ -l h="!node12"
+#$ -o ../stdin_and_out/$TASK_ID.out
+#$ -e ../stdin_and_out/$TASK_ID.error
 
 # EXPLANATION SOME PARAMETERS
 # -cwd : run job in the current directory (has no effect here! needs to be passed in the calling script)

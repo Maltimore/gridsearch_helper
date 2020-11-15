@@ -2,12 +2,10 @@ import sys
 import os
 import argparse
 
-import python_entry
+#import python_entry
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--job_name',
-                    type=str)
-parser.add_argument('launch_script',
+parser.add_argument('--launch_script',
                     type=str)
 parser.add_argument('--path',
                     type=str,
@@ -16,12 +14,14 @@ parser.add_argument('--params_path',
                     type=str,
                     default='src/parameters.yaml',
                     help='path to parameters YAML file')
-parser.add_argument('--taskrange_start',
+parser.add_argument('--taskrange_begin',
                     type=int,
                     default=1)
 parser.add_argument('--taskrange_end',
                     type=int,
                     default=1)
+parser.add_argument('--job_name',
+                    type=str)
 args = parser.parse_args()
 output_path = os.path.abspath(args.path)
 
@@ -32,7 +32,8 @@ if os.path.exists(output_path):
         sys.exit('Ok, no job started')
 
 if not os.path.exists(output_path):
-    os.path.makedirs(output_path)
+    os.makedirs(output_path)
+    os.makedirs(os.path.join(output_path, 'stdin_and_out'))
 
 #####
 ##### python_entry stuff
@@ -41,7 +42,7 @@ if not os.path.exists(output_path):
 repository_copy_path = os.path.join(output_path, 'repository')
 if not os.path.exists(repository_copy_path):
     print(f'Making repository directory {repository_copy_path}')
-    os.path.makedirs(repository_copy_path)
+    os.makedirs(repository_copy_path)
 
     print('Creating archive of git repository, including tracked changes')
     git_status_clean = not os.system('git diff-index --quiet HEAD')
@@ -52,14 +53,16 @@ if not os.path.exists(repository_copy_path):
         # git status is clean, create archive from HEAD
         os.systme(f'git archive HEAD -o {output_path}/temporary_git_stash_archive.tar')
     print(f'Unpacking git archive to {repository_copy_path}')
-    os.system(f'tar -xf {output_path}/temporary_git_stash_archive.tar -C $repository_copy_path')
+    os.system(f'tar -xf {output_path}/temporary_git_stash_archive.tar -C {repository_copy_path}')
     os.system(f'rm {output_path}/temporary_git_stash_archive.tar')
 
 print(f'Switching to repository directory {repository_copy_path}')
 os.chdir(repository_copy_path)
 print(f'Now in {os.getcwd()}')
 
+os.environ['OUTPUT_PATH'] = output_path
 qsub_command = (
+    f'export OUTPUT_PATH="{output_path}" && ' +
     'qsub ' +
     '-cwd ' +
     f'-N {args.job_name} ' +
