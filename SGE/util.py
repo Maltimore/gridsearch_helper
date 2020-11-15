@@ -1,25 +1,18 @@
 import time
-start_time = time.time()
-print("Start time: {}".format(
-    time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(start_time))))
+#start_time = time.time()
+#print("Start time: {}".format(
+#    time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(start_time))))
 import os
-import pathlib
-import sys
 import itertools
-from ruamel.yaml import YAML
 import platform
 import subprocess
 import warnings
-
-
-output_path = sys.argv[1]
-yaml = YAML()
 
 task_id = int(os.environ['SGE_TASK_ID'])
 print("In python_entry.py, task_id is {}".format(task_id))
 
 
-def assign_gridsearch_hyperparameters(id_, params):
+def assign_hyperparams(id_, params):
     """assign_hyperparameters
     Maps an index to a hyperparameter combination. In params, values that are lists
     are interpreted to be those for which different combinations should be tested.
@@ -62,22 +55,18 @@ def get_git_info():
     return return_dict
 
 
-params = yaml.load("parameters.yaml")
-params = assign_gridsearch_hyperparameters(task_id, params)
 
-yaml.dump(params, pathlib.Path(output_path, 'parameters.yaml'))
-
-run_info = {
-    "start_time": time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(start_time)),
-    "output_path": output_path,
-    "git_hash": get_git_info()["git_hash"],
-    "git_status": get_git_info()["git_status"],
-    "gridsearch": True,
-    "hostname": platform.uname()[1],
-    "run_finished": False,
-    "task_id": task_id,
-}
-yaml.dump(run_info, pathlib.Path(output_path, 'run_info.yaml'))
+def get_run_info():
+    run_info = {
+        "start_time": time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(start_time)),
+        "output_path": output_path,
+        "git_hash": get_git_info()["git_hash"],
+        "git_status": get_git_info()["git_status"],
+        "gridsearch": True,
+        "hostname": platform.uname()[1],
+        "run_finished": False,
+        "task_id": task_id,
+    }
 
 #print("Parameters:")
 #print(params)
