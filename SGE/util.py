@@ -11,6 +11,11 @@ import copy
 
 
 def flatten_dict(thed):
+    """
+    This function recursively flattens an arbitrarily nested dictionary.
+    The keys into the flattened dictionary are tuples of the form
+    (key0, key1, key2..)
+    """
     thed = copy.deepcopy(thed)
     to_flatten = {}
     for key in thed.keys():
