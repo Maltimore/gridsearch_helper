@@ -37,11 +37,18 @@ params_path=$output_path/parameters.yaml
 echo Current working directory: `pwd`
 echo Hostname: `hostname`
 
-if [ docker image inspect malte/rllib >/dev/null 2>&1 == 1 ]; then
-    echo docker image is not in the registry on this node, loading it from tar file
-    docker image load --input /home/malte/repos/proteinfolding/docker/malte_rllib_docker_image.tar
-else
+if [ docker image inspect malte/rllib >/dev/null 2>&1 == 0 ]; then
     echo Did not need to load the docker image, because it is in the registry on this node
+else
+    echo Docker image is not in the registry on this node, need to load it from tar file.
+    echo However, we will first sleep a random amount of time to see if some other job is going to load it first
+    /bin/sleep   `/usr/bin/expr $RANDOM % 300`
+    if [ docker image inspect malte/rllib >/dev/null 2>&1 == 0 ]; then
+        echo Image has been loaded in the meantime
+    else
+        echo Loading image now
+        docker image load --input /home/malte/repos/proteinfolding/docker/malte_rllib_docker_image.tar
+    fi
 fi
 
 echo Now calling docker
