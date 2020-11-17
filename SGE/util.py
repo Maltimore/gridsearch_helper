@@ -40,7 +40,8 @@ def assign_hyperparams(id_, params):
     """
     gridsearch_params = params['gridsearch']
     flattened_gridsearch_params = flatten_dict(gridsearch_params)
-    param_combo = list(itertools.product(*flattened_gridsearch_params.values()))[(id_ - 1) % len(flattened_gridsearch_params)]
+    param_combos = list(itertools.product(*flattened_gridsearch_params.values()))
+    param_combo = param_combos[(id_ - 1) % len(param_combos)]
     for key_idx, key in enumerate(flattened_gridsearch_params.keys()):
         if len(key) == 2:
             params['default'][key[1]] = param_combo[key_idx]
