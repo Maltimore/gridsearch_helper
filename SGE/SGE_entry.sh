@@ -1,12 +1,9 @@
 #! /bin/bash
 #$ -V
-#$ -l h_vmem=5G
-#$ -l h_rt=04:00:00
+#$ -l h_vmem=4G
+#$ -l h_rt=02:00:00
 #$ -binding linear:2
-#$ -l h="!node05"
-#$ -l h="!node08"
-#$ -l h="!node12"
-#$ -l h="!node29"
+#$ -l h="!node11"
 #$ -o ../stdin_and_out/$TASK_ID.out
 #$ -e ../stdin_and_out/$TASK_ID.error
 
@@ -43,6 +40,8 @@ echo Hostname: `hostname`
 if [ docker image inspect malte/rllib >/dev/null 2>&1 == 1 ]; then
     echo docker image is not in the registry on this node, loading it from tar file
     docker image load --input /home/malte/repos/proteinfolding/docker/malte_rllib_docker_image.tar
+else
+    echo Did not need to load the docker image, because it is in the registry on this node
 fi
 
 echo Now calling docker
