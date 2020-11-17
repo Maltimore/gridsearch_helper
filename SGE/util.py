@@ -51,19 +51,6 @@ def assign_hyperparams(id_, params):
                 subdict = subdict[subkey]
             subdict[key[-1]] = param_combo[key_idx]
     return params
-    # The following determines how many parameter combos there are
-    # It then selects the parameter combo based on task_id
-#    while True:
-#        for config in gridsearch_params.keys():
-#            param_names, param_values = zip(*gridsearch_params[config].items())
-#            # get all parameter combinations with the cartesian product
-#            parametercombos = list(itertools.product(*param_values))
-#            if (id_ - 1) < len(parametercombos):
-#                parametercombo = parametercombos[id_ - 1]
-#                for idx, key in enumerate(param_names):
-#                    params[key] = parametercombo[idx]
-#                return params
-#            id_ -= len(parametercombos)
 
 
 def get_git_info():
