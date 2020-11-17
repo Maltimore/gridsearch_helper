@@ -40,8 +40,10 @@ params_path=$output_path/parameters.yaml
 echo Current working directory: `pwd`
 echo Hostname: `hostname`
 
-
-docker image load --input /home/malte/repos/proteinfolding/docker/malte_rllib_docker_image.tar
+if [ docker image inspect malte/rllib >/dev/null 2>&1 == 1 ]; then
+    echo docker image is not in the registry on this node, loading it from tar file
+    docker image load --input /home/malte/repos/proteinfolding/docker/malte_rllib_docker_image.tar
+fi
 
 echo Now calling docker
 docker run --shm-size=2G --mount src="$HOME",target=/home/malte,type=bind malte/rllib python /home/malte/repos/proteinfolding/src/main.py --path=$output_path --params_path=$params_path
