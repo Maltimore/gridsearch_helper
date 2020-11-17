@@ -3,8 +3,10 @@
 #$ -l h_vmem=5G
 #$ -l h_rt=04:00:00
 #$ -binding linear:2
+#$ -l h="!node05"
 #$ -l h="!node08"
 #$ -l h="!node12"
+#$ -l h="!node29"
 #$ -o ../stdin_and_out/$TASK_ID.out
 #$ -e ../stdin_and_out/$TASK_ID.error
 
@@ -38,5 +40,9 @@ params_path=$output_path/parameters.yaml
 echo Current working directory: `pwd`
 echo Hostname: `hostname`
 
-echo Now calling singularity
-singularity exec ~/ray_latest.sif ./src/sing.sh $output_path $params_path
+
+docker image load --input /home/malte/repos/proteinfolding/docker/malte_rllib_docker_image.tar
+
+echo Now calling docker
+docker run --shm-size=2G --mount src="$HOME",target=/home/malte,type=bind malte/rllib python /home/malte/repos/proteinfolding/src/main.py --path=$output_path --params_path=$params_path
+#singularity exec ~/ray_latest.sif ./src/sing.sh $output_path $params_path
