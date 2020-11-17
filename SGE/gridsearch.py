@@ -71,7 +71,7 @@ if not os.path.exists(repository_copy_path):
         os.system(f'git archive `git stash create` -o {output_path}/temporary_git_stash_archive.tar')
     else:
         # git status is clean, create archive from HEAD
-        os.systme(f'git archive HEAD -o {output_path}/temporary_git_stash_archive.tar')
+        os.system(f'git archive HEAD -o {output_path}/temporary_git_stash_archive.tar')
     print(f'Unpacking git archive to {repository_copy_path}')
     os.system(f'tar -xf {output_path}/temporary_git_stash_archive.tar -C {repository_copy_path}')
     os.system(f'rm {output_path}/temporary_git_stash_archive.tar')
