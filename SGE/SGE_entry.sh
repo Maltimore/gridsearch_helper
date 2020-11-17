@@ -46,5 +46,5 @@ if [ docker image inspect malte/rllib >/dev/null 2>&1 == 1 ]; then
 fi
 
 echo Now calling docker
-docker run --shm-size=2G --mount src="$HOME",target=/home/malte,type=bind malte/rllib python /home/malte/repos/proteinfolding/src/main.py --path=$output_path --params_path=$params_path
+docker run --shm-size=2G --rm --mount src="$HOME",target=/home/malte,type=bind malte/rllib python /home/malte/repos/proteinfolding/src/main.py --path=$output_path --params_path=$params_path
 #singularity exec ~/ray_latest.sif ./src/sing.sh $output_path $params_path
