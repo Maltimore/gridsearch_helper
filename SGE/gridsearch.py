@@ -48,10 +48,12 @@ if not os.path.exists(output_path):
 
 
 gridsearch = True if args.taskrange_end - args.taskrange_begin > 0 else False
-if not gridsearch:
-    shutil.copyfile(args.params_path, os.path.join(output_path, 'parameters.yaml'))
-else:
-    # this is a gridsearch
+# copy the params file to the output folder, regardless of whether this is a
+# gridsearch or not. If it is a gridsearch, we will later copy appropriate
+# params files into each output directory (for each job)
+shutil.copyfile(args.params_path, os.path.join(output_path, 'parameters.yaml'))
+
+if gridsearch:
     params = yaml.load(pathlib.Path(args.params_path))
     if not os.path.exists(os.path.join(output_path, 'job_outputs')):
         os.makedirs(os.path.join(output_path, 'job_outputs'))
