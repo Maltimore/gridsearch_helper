@@ -27,9 +27,14 @@ parser.add_argument('--taskrange_end',
                     type=int,
                     default=1)
 parser.add_argument('--job_name',
-                    type=str)
+                    default=None,
+                    type=str,
+                    help='If you do not provide a job name, the output directory is taken')
 args = parser.parse_args()
 output_path = os.path.abspath(args.path)
+if args.job_name is None:
+    job_name = os.path.basename(output_path)
+    print(f'Job name set to {job_name}')
 
 if os.path.exists(output_path):
     print(f"Output directory {output_path} already exists, "
@@ -83,7 +88,7 @@ print(f'Now in {os.getcwd()}')
 qsub_command = (
     'qsub ' +
     '-cwd ' +
-    f'-N {args.job_name} ' +
+    f'-N {job_name} ' +
     f'-t {args.taskrange_begin}-{args.taskrange_end} ' +
     f'{args.launch_script} '
 )
