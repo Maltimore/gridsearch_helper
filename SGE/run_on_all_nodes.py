@@ -1,4 +1,5 @@
 import os
+import time
 
 
 nodes = [
@@ -39,12 +40,16 @@ nodes = [
     'node41',
 ]
 
-for node in ['node02', 'node05', 'node35']:
+job_name = 'nodes1'
+for node in nodes:
     command = (
-        "/bin/env launch_SGE_job.py" + " " +
+        "/usr/bin/env launch_SGE_job.py" + " " +
         "--launch_script cluster/SGE_entry.sh" + " " +
-        "--path outfiles/testnodes01/" + node + " " +
-        "--job_name testnodes01"
-    ]
-    print(command)
-
+        "--path " + os.path.join('outfiles', job_name, node) + " " +
+        "--job_name " + job_name + " " +
+        "--node " + node
+    )
+    print(f'\ncommand: {command}')
+    os.system(command)
+    # sleep a bit such that git can clean up its index.lock file
+    time.sleep(5)
