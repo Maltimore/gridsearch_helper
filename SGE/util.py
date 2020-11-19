@@ -1,12 +1,4 @@
-import time
-#start_time = time.time()
-#print("Start time: {}".format(
-#    time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(start_time))))
-import os
 import itertools
-import platform
-import subprocess
-import warnings
 import copy
 
 
@@ -51,47 +43,3 @@ def assign_hyperparams(id_, params):
                 subdict = subdict[subkey]
             subdict[key[-1]] = param_combo[key_idx]
     return params
-
-
-def get_git_info():
-    try:
-        return_dict = {
-            "git_hash": subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode('utf-8').strip('\n'),
-            "git_status":  subprocess.check_output(['git', 'status']).decode('utf-8'),
-        }
-    except Exception:
-        warnings.warn('\nWarning! Failed to get git revision hash!\n')
-        return_dict = {
-            "git_hash": "failed_to_get",
-            "git_status": "failed_to_get"
-        }
-    return return_dict
-
-
-def get_run_info():
-    task_id = int(os.environ['SGE_TASK_ID'])
-    run_info = {
-        "start_time": time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(start_time)),
-        "git_hash": get_git_info()["git_hash"],
-        "git_status": get_git_info()["git_status"],
-        "gridsearch": True,
-        "hostname": platform.uname()[1],
-        "run_finished": False,
-        "task_id": task_id,
-    }
-    return run_info
-
-#print("Parameters:")
-#print(params)
-#print("Running main.main()", flush=True)
-#main.main(params, program_state)
-#
-#end_time = time.time()
-#run_time = end_time - start_time
-#print("End time: {}".format(
-#    time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(end_time))))
-#print("Run time (seconds): {}".format(run_time), flush=True)
-#
-#program_state["end_time"] = time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(end_time))
-#program_state["run_time"] = time.strftime('%H:%M:%S', time.gmtime(run_time))
-#program_state["run_finished"] = True

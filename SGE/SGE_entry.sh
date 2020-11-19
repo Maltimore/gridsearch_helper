@@ -7,6 +7,11 @@
 #$ -o ../stdin_and_out/$TASK_ID.out
 #$ -e ../stdin_and_out/$TASK_ID.error
 
+########################################################################
+# YOU SHOULD COPY AND MODIFY THIS FILE TO SUIT YOUR NEEDS.
+# I RECOMMEND TO ONLY MODIFY THE PART BETWEEN THE COMMENTED LINES
+########################################################################
+
 # EXPLANATION OF SOME PARAMETERS
 # -cwd : run job in the current directory (has no effect here! needs to be passed in the calling script)
 # -V : take over currently active environment variables for the job
@@ -37,20 +42,78 @@ params_path=$output_path/parameters.yaml
 echo Current working directory: `pwd`
 echo Hostname: `hostname`
 
-#if [ docker image inspect malte/rllib >/dev/null 2>&1 == 0 ]; then
-#    echo Did not need to load the docker image, because it is in the registry on this node
-#else
-#    echo Docker image is not in the registry on this node, need to load it from tar file.
-#    echo However, we will first sleep a random amount of time to see if some other job is going to load it first
-#    /bin/sleep   `/usr/bin/expr $RANDOM % 300`
-#    if [ docker image inspect malte/rllib >/dev/null 2>&1 == 0 ]; then
-#        echo Image has been loaded in the meantime
-#    else
-#        echo Loading image now
-#        docker image load --input /home/malte/repos/proteinfolding/docker/malte_rllib_docker_image.tar
-#    fi
-#fi
 
-#docker run --shm-size=2G --rm --mount src="$HOME",target=/home/malte,type=bind malte/rllib python /home/malte/repos/proteinfolding/src/main.py --path=$output_path --params_path=$params_path
-echo Now calling singularity
-singularity exec --net --fakeroot -B /home/malte:/home/malte ~/ray_latest.sif ./src/sing.sh $output_path $params_path
+python <<HEREDOC
+import time
+start_time = time.time()
+print("Start time: {}".format(
+    time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(start_time))))
+import os
+import platform
+import subprocess
+import warnings
+from ruamel.yaml import YAML
+import pathlib
+
+yaml = YAML()
+
+
+def get_git_info():
+    try:
+        return_dict = {
+            "git_hash": subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode('utf-8').strip('\n'),
+            "git_status":  subprocess.check_output(['git', 'status', '--porcelain']).decode('utf-8'),
+        }
+    except Exception:
+        warnings.warn('\nWarning! Failed to get git revision hash!\n')
+        return_dict = {
+            "git_hash": "failed_to_get",
+            "git_status": "failed_to_get"
+        }
+    return return_dict
+
+
+run_info = {
+    "start_time": time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(start_time)),
+    "git_hash": get_git_info()["git_hash"],
+    "git_status": get_git_info()["git_status"],
+    "gridsearch": True,
+    "hostname": platform.uname()[1],
+    "run_finished": False,
+    "task_id": int(os.environ['SGE_TASK_ID']),
+}
+yaml.dump(run_info, pathlib.Path('$output_path', 'program_state.yaml'))
+HEREDOC
+
+##############################################################################################################################
+##############################################################################################################################
+##############################################################################################################################
+##############################################################################################################################
+# starting here you can put the commands you would like to run
+
+python src/main.py $output_path $params_path
+
+
+# finish the job by putting the end time into the program_state.yaml
+##############################################################################################################################
+##############################################################################################################################
+##############################################################################################################################
+##############################################################################################################################
+python <<HEREDOC
+import time
+from ruamel.yaml import YAML
+import pathlib
+
+yaml = YAML()
+run_info = yaml.load(pathlib.Path('$output_path', 'program_state.yaml'))
+end_time = time.time()
+run_time = end_time - run_info['start_time']
+print("End time: {}".format(
+    time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(end_time))))
+print("Run time (seconds): {}".format(run_time), flush=True)
+
+run_info["end_time"] = time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(end_time))
+run_info["run_time"] = time.strftime('%H:%M:%S', time.gmtime(run_time))
+run_info["run_finished"] = True
+yaml.dump(run_info, pathlib.Path('$output_path', 'program_state.yaml'))
+HEREDOC
