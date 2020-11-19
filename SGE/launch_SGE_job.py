@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import sys
 import os
 import argparse
@@ -12,20 +13,31 @@ import util
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--launch_script',
-                    type=str)
+                    type=str,
+                    help=(
+                        'Path to the script that should be run. '
+                        'You should take the example script at SGE/SGE_entry.sh and modify it to your needs. '
+                        'You can then place your modified copy of SGE_entry.sh (possibly renamed) and place it '
+                        'somewhere on your system. Then, provide the path to that script here.'
+                    ))
 parser.add_argument('--path',
                     type=str,
-                    help='destination of results')
+                    help='Output directory')
 parser.add_argument('--params_path',
                     type=str,
                     default='src/parameters.yaml',
-                    help='path to parameters YAML file')
+                    help='path to parameters file')
 parser.add_argument('--taskrange_begin',
                     type=int,
-                    default=1)
+                    default=1,
+                    help='default is 1')
 parser.add_argument('--taskrange_end',
                     type=int,
-                    default=1)
+                    default=1,
+                    help=(
+                        'default is 1. '
+                        'If (taskrange_end - taskrange_begin) == 1, this will be a normal (non-gridsearch) job'
+                    ))
 parser.add_argument('--job_name',
                     default=None,
                     type=str,
