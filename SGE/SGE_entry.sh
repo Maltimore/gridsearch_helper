@@ -94,7 +94,7 @@ HEREDOC
 ########################################################################################################################
 # starting here you can put the commands you would like to run
 
-python src/main.py $output_path $params_path
+python src/main.py --path $output_path --params_path $params_path
 
 
 # finish the job by putting the end time into the program_state.yaml
