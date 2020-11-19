@@ -22,26 +22,26 @@ parser.add_argument('--launch_script',
                     ))
 parser.add_argument('--path',
                     type=str,
-                    help='Output directory')
+                    help='Output directory.')
 parser.add_argument('--params_path',
                     type=str,
                     default='src/parameters.yaml',
-                    help='Optional. Default is ./src/parameters.yaml. Path to parameters file')
+                    help='Optional. Default is ./src/parameters.yaml. Path to parameters file.')
 parser.add_argument('--taskrange_begin',
                     type=int,
                     default=1,
-                    help='Optional. Default is 1')
+                    help='Optional. Default is 1.')
 parser.add_argument('--taskrange_end',
                     type=int,
                     default=1,
                     help=(
                         'Optional. Default is 1. '
-                        'If (taskrange_end - taskrange_begin) == 1, this will be a normal (non-gridsearch) job'
+                        'If (taskrange_end - taskrange_begin) == 1, this will be a normal (non-gridsearch) job.'
                     ))
 parser.add_argument('--job_name',
                     default=None,
                     type=str,
-                    help='Optional. If you do not provide a job name, the output directory is taken as the job name')
+                    help='Optional. If you do not provide a job name, the output directory is taken as the job name.')
 args = parser.parse_args()
 output_path = os.path.abspath(args.path)
 if args.job_name is None:
