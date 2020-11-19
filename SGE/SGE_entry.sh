@@ -39,15 +39,18 @@ fi
 echo The output path is $output_path
 params_path=$output_path/parameters.yaml
 
+export GRIDSEARCH=$gridsearch
+export OUTPUT_PATH=$output_path
+export PARAMS_PATH=$params_path
+
 echo Current working directory: `pwd`
 echo Hostname: `hostname`
 
 
 python <<HEREDOC
-import time
-start_time = time.time()
-print("Start time: {}".format(
-    time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(start_time))))
+import datetime
+start_time = datetime.datetime.now()
+print(f"Start time: {start_time}")
 import os
 import platform
 import subprocess
@@ -74,46 +77,46 @@ def get_git_info():
 
 
 run_info = {
-    "start_time": time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(start_time)),
+    "start_time": str(start_time),
     "git_hash": get_git_info()["git_hash"],
     "git_status": get_git_info()["git_status"],
-    "gridsearch": True,
+    "gridsearch": True if os.environ['GRIDSEARCH'] == 'is_gridsearch' else False,
     "hostname": platform.uname()[1],
     "run_finished": False,
     "task_id": int(os.environ['SGE_TASK_ID']),
 }
-yaml.dump(run_info, pathlib.Path('$output_path', 'program_state.yaml'))
+yaml.dump(run_info, pathlib.Path(os.environ['OUTPUT_PATH'], 'program_state.yaml'))
 HEREDOC
 
-##############################################################################################################################
-##############################################################################################################################
-##############################################################################################################################
-##############################################################################################################################
+########################################################################################################################
+########################################################################################################################
+########################################################################################################################
+########################################################################################################################
 # starting here you can put the commands you would like to run
 
 python src/main.py $output_path $params_path
 
 
 # finish the job by putting the end time into the program_state.yaml
-##############################################################################################################################
-##############################################################################################################################
-##############################################################################################################################
-##############################################################################################################################
+########################################################################################################################
+########################################################################################################################
+########################################################################################################################
+########################################################################################################################
 python <<HEREDOC
-import time
+import datetime
 from ruamel.yaml import YAML
 import pathlib
+import os
 
 yaml = YAML()
-run_info = yaml.load(pathlib.Path('$output_path', 'program_state.yaml'))
-end_time = time.time()
-run_time = end_time - run_info['start_time']
-print("End time: {}".format(
-    time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(end_time))))
-print("Run time (seconds): {}".format(run_time), flush=True)
+run_info = yaml.load(pathlib.Path(os.environ['OUTPUT_PATH'], 'program_state.yaml'))
+end_time = datetime.datetime.now()
+run_time_seconds = (end_time - datetime.datetime.strptime(run_info['start_time'], '%Y-%m-%d %H:%M:%S.%f')).seconds
+print(f"End time: {end_time}")
+print(f"Run time (seconds): {run_time_seconds}", flush=True)
 
-run_info["end_time"] = time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(end_time))
-run_info["run_time"] = time.strftime('%H:%M:%S', time.gmtime(run_time))
+run_info["end_time"] = str(end_time)
+run_info["run_time_seconds"] = run_time_seconds
 run_info["run_finished"] = True
-yaml.dump(run_info, pathlib.Path('$output_path', 'program_state.yaml'))
+yaml.dump(run_info, pathlib.Path(os.environ['OUTPUT_PATH'], 'program_state.yaml'))
 HEREDOC
