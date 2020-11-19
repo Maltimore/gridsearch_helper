@@ -41,7 +41,7 @@ parser.add_argument('--taskrange_end',
 parser.add_argument('--job_name',
                     default=None,
                     type=str,
-                    help='Optional. If you do not provide a job name, the output directory is taken')
+                    help='Optional. If you do not provide a job name, the output directory is taken as the job name')
 args = parser.parse_args()
 output_path = os.path.abspath(args.path)
 if args.job_name is None:
