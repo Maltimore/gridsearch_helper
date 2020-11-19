@@ -3,11 +3,11 @@
 #$ -l h_vmem=4G
 #$ -l h_rt=02:00:00
 #$ -binding linear:2
-#$ -l h="!node11"
+#$ -l h='*&!node11'
 #$ -o ../stdin_and_out/$TASK_ID.out
 #$ -e ../stdin_and_out/$TASK_ID.error
 
-# EXPLANATION SOME PARAMETERS
+# EXPLANATION OF SOME PARAMETERS
 # -cwd : run job in the current directory (has no effect here! needs to be passed in the calling script)
 # -V : take over currently active environment variables for the job
 # -l h_vmem=50G : amount of RAM to reserve for the job
@@ -37,20 +37,20 @@ params_path=$output_path/parameters.yaml
 echo Current working directory: `pwd`
 echo Hostname: `hostname`
 
-if [ docker image inspect malte/rllib >/dev/null 2>&1 == 0 ]; then
-    echo Did not need to load the docker image, because it is in the registry on this node
-else
-    echo Docker image is not in the registry on this node, need to load it from tar file.
-    echo However, we will first sleep a random amount of time to see if some other job is going to load it first
-    /bin/sleep   `/usr/bin/expr $RANDOM % 300`
-    if [ docker image inspect malte/rllib >/dev/null 2>&1 == 0 ]; then
-        echo Image has been loaded in the meantime
-    else
-        echo Loading image now
-        docker image load --input /home/malte/repos/proteinfolding/docker/malte_rllib_docker_image.tar
-    fi
-fi
+#if [ docker image inspect malte/rllib >/dev/null 2>&1 == 0 ]; then
+#    echo Did not need to load the docker image, because it is in the registry on this node
+#else
+#    echo Docker image is not in the registry on this node, need to load it from tar file.
+#    echo However, we will first sleep a random amount of time to see if some other job is going to load it first
+#    /bin/sleep   `/usr/bin/expr $RANDOM % 300`
+#    if [ docker image inspect malte/rllib >/dev/null 2>&1 == 0 ]; then
+#        echo Image has been loaded in the meantime
+#    else
+#        echo Loading image now
+#        docker image load --input /home/malte/repos/proteinfolding/docker/malte_rllib_docker_image.tar
+#    fi
+#fi
 
-echo Now calling docker
-docker run --shm-size=2G --rm --mount src="$HOME",target=/home/malte,type=bind malte/rllib python /home/malte/repos/proteinfolding/src/main.py --path=$output_path --params_path=$params_path
-#singularity exec ~/ray_latest.sif ./src/sing.sh $output_path $params_path
+#docker run --shm-size=2G --rm --mount src="$HOME",target=/home/malte,type=bind malte/rllib python /home/malte/repos/proteinfolding/src/main.py --path=$output_path --params_path=$params_path
+echo Now calling singularity
+singularity exec --net --fakeroot -B /home/malte:/home/malte ~/ray_latest.sif ./src/sing.sh $output_path $params_path
