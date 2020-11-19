@@ -49,6 +49,8 @@ output_path = os.path.abspath(args.path)
 if args.job_name is None:
     job_name = os.path.basename(output_path)
     print(f'Job name set to {job_name}')
+else:
+    job_name = args.job_name
 
 if os.path.exists(output_path):
     print(f"Output directory {output_path} already exists, "
