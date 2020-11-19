@@ -44,8 +44,18 @@ parser.add_argument('--job_name',
                     default=None,
                     type=str,
                     help='Default is the output directory of --path as the job name.')
+parser.add_argument('--node',
+                    default=None,
+                    type=str,
+                    help=(
+                        'Default is None. Set the node to run on. This setting will be passed directly to '
+                        'qsub in the form of -l h=<node>. '
+                        'If you don\'t set this, then the setting in your SGE_entry.sh will '
+                        'be used. If you do not set that either, it is equivalent to \'*\'.'
+                    ))
 args = parser.parse_args()
 output_path = os.path.abspath(args.path)
+# job_name
 if args.job_name is None:
     job_name = os.path.basename(output_path)
     print(f'Job name set to {job_name}')
@@ -103,15 +113,14 @@ print(f'Switching to repository directory {repository_copy_path}')
 os.chdir(repository_copy_path)
 print(f'Now in {os.getcwd()}')
 
-qsub_command = (
-    'qsub ' +
-    '-cwd ' +
-    f'-N {job_name} ' +
-    f'-t {args.taskrange_begin}-{args.taskrange_end} ' +
-    f'{args.launch_script} '
-)
+qsub_command = 'qsub '
+qsub_command += '-cwd '
+qsub_command += f'-N {job_name} '
+qsub_command += f'-t {args.taskrange_begin}-{args.taskrange_end} '
+qsub_command += f'-l h=\'{args.node}\' ' if args.node is not None else ''
+qsub_command += f'{args.launch_script} '
 qsub_command += 'is_gridsearch ' if gridsearch else 'is_not_gridsearch '
-qsub_command += f'{output_path}'
+qsub_command += f'{output_path} '
 
 print('Running the following qsub command now')
 print(qsub_command)
