@@ -85,7 +85,7 @@ run_info = {
     "run_finished": False,
     "task_id": int(os.environ['SGE_TASK_ID']),
 }
-yaml.dump(run_info, pathlib.Path(os.environ['OUTPUT_PATH'], 'program_state.yaml'))
+yaml.dump(run_info, pathlib.Path(os.environ['OUTPUT_PATH'], 'run_info.yaml'))
 HEREDOC
 
 ########################################################################################################################
@@ -97,7 +97,7 @@ HEREDOC
 python src/main.py --path $output_path --params_path $params_path
 
 
-# finish the job by putting the end time into the program_state.yaml
+# finish the job by putting the end time into the run_info.yaml
 ########################################################################################################################
 ########################################################################################################################
 ########################################################################################################################
@@ -109,7 +109,7 @@ import pathlib
 import os
 
 yaml = YAML()
-run_info = yaml.load(pathlib.Path(os.environ['OUTPUT_PATH'], 'program_state.yaml'))
+run_info = yaml.load(pathlib.Path(os.environ['OUTPUT_PATH'], 'run_info.yaml'))
 end_time = datetime.datetime.now()
 run_time_seconds = (end_time - datetime.datetime.strptime(run_info['start_time'], '%Y-%m-%d %H:%M:%S.%f')).seconds
 print(f"End time: {end_time}")
@@ -118,5 +118,5 @@ print(f"Run time (seconds): {run_time_seconds}", flush=True)
 run_info["end_time"] = str(end_time)
 run_info["run_time_seconds"] = run_time_seconds
 run_info["run_finished"] = True
-yaml.dump(run_info, pathlib.Path(os.environ['OUTPUT_PATH'], 'program_state.yaml'))
+yaml.dump(run_info, pathlib.Path(os.environ['OUTPUT_PATH'], 'run_info.yaml'))
 HEREDOC
