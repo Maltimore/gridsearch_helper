@@ -54,45 +54,45 @@ parser.add_argument('--node',
                         'be used. If you do not set that either, it is equivalent to \'*\'.'
                     ))
 args = parser.parse_args()
-output_path = os.path.abspath(args.path)
+args.path = os.path.abspath(args.path)
+args.launch_script = os.path.abspath(args.launch_script)
+args.params_path = os.path.abspath(args.params_path)
 # job_name
 if args.job_name is None:
-    job_name = os.path.basename(output_path)
-    print(f'Job name set to {job_name}')
-else:
-    job_name = args.job_name
+    args.job_name = os.path.basename(args.path)
+    print(f'Job name set to {args.job_name}')
 
-if os.path.exists(output_path):
-    print(f"Output directory {output_path} already exists, "
+if os.path.exists(args.path):
+    print(f"Output directory {args.path} already exists, "
           "should we continue?")
     if not input('[y to continue]') == 'y':
         sys.exit('Ok, no job started')
 
-if not os.path.exists(output_path):
-    os.makedirs(output_path)
-    os.makedirs(os.path.join(output_path, 'stdin_and_out'))
+if not os.path.exists(args.path):
+    os.makedirs(args.path)
+    os.makedirs(os.path.join(args.path, 'stdin_and_out'))
 
 
 gridsearch = True if args.taskrange_end - args.taskrange_begin > 0 else False
 # copy the params file to the output folder, regardless of whether this is a
 # gridsearch or not. If it is a gridsearch, we will later copy appropriate
 # params files into each output directory (for each job)
-shutil.copyfile(args.params_path, os.path.join(output_path, 'parameters.yaml'))
+shutil.copyfile(args.params_path, os.path.join(args.path, 'parameters.yaml'))
 
 if gridsearch:
     params = yaml.load(pathlib.Path(args.params_path))
-    if not os.path.exists(os.path.join(output_path, 'job_outputs')):
-        os.makedirs(os.path.join(output_path, 'job_outputs'))
+    if not os.path.exists(os.path.join(args.path, 'job_outputs')):
+        os.makedirs(os.path.join(args.path, 'job_outputs'))
 
     for job_idx in range(args.taskrange_begin, args.taskrange_end + 1):
-        job_output_dir = os.path.join(output_path, 'job_outputs', str(job_idx).zfill(5))
+        job_output_dir = os.path.join(args.path, 'job_outputs', str(job_idx).zfill(5))
         if not os.path.exists(job_output_dir):
             os.makedirs(job_output_dir)
         job_params = util.assign_hyperparams(job_idx, copy.deepcopy(params))
         yaml.dump(job_params, pathlib.Path(job_output_dir, 'parameters.yaml'))
 
 
-repository_copy_path = os.path.join(output_path, 'repository')
+repository_copy_path = os.path.join(args.path, 'repository')
 if not os.path.exists(repository_copy_path):
     print(f'Making repository directory {repository_copy_path}')
     os.makedirs(repository_copy_path)
@@ -101,13 +101,13 @@ if not os.path.exists(repository_copy_path):
     git_status_clean = not os.system('git diff-index --quiet HEAD')
     if not git_status_clean:
         # git status is dirty, create archive from stash
-        os.system(f'git archive `git stash create` -o {output_path}/temporary_git_stash_archive.tar')
+        os.system(f'git archive `git stash create` -o {args.path}/temporary_git_stash_archive.tar')
     else:
         # git status is clean, create archive from HEAD
-        os.system(f'git archive HEAD -o {output_path}/temporary_git_stash_archive.tar')
+        os.system(f'git archive HEAD -o {args.path}/temporary_git_stash_archive.tar')
     print(f'Unpacking git archive to {repository_copy_path}')
-    os.system(f'tar -xf {output_path}/temporary_git_stash_archive.tar -C {repository_copy_path}')
-    os.system(f'rm {output_path}/temporary_git_stash_archive.tar')
+    os.system(f'tar -xf {args.path}/temporary_git_stash_archive.tar -C {repository_copy_path}')
+    os.system(f'rm {args.path}/temporary_git_stash_archive.tar')
 
 print(f'Switching to repository directory {repository_copy_path}')
 os.chdir(repository_copy_path)
@@ -115,12 +115,12 @@ print(f'Now in {os.getcwd()}')
 
 qsub_command = 'qsub '
 qsub_command += '-cwd '
-qsub_command += f'-N {job_name} '
+qsub_command += f'-N {args.job_name} '
 qsub_command += f'-t {args.taskrange_begin}-{args.taskrange_end} '
 qsub_command += f'-l h=\'{args.node}\' ' if args.node is not None else ''
 qsub_command += f'{args.launch_script} '
 qsub_command += 'is_gridsearch ' if gridsearch else 'is_not_gridsearch '
-qsub_command += f'{output_path} '
+qsub_command += f'{args.path} '
 
 print('Running the following qsub command now')
 print(qsub_command)
