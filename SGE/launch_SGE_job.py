@@ -94,7 +94,15 @@ if gridsearch:
 
 
 repository_copy_path = os.path.join(args.path, 'repository')
+if os.path.exists(repository_copy_path):
+    print('There is already a (possibly old or incomplete) copy of the repository at the selected output path ' +
+          repository_copy_path)
+    answer = input('Delete the copy and re-create it? (y/n)')
+    if answer == 'y':
+        print(f'Ok, deleting directory at {repository_copy_path}')
+        shutil.rmtree(repository_copy_path)
 if not os.path.exists(repository_copy_path):
+    # repository copy does not exist yet, create it
     print(f'Making repository directory {repository_copy_path}')
     os.makedirs(repository_copy_path)
 
