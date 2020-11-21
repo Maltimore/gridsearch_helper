@@ -68,9 +68,9 @@ if os.path.exists(args.path):
           "should we continue?")
     if not input('[y to continue]') == 'y':
         sys.exit('Ok, no job started')
-
-if not os.path.exists(args.path):
+else:
     os.makedirs(args.path)
+if not os.path.exists(os.path.join(args.path, 'stdin_and_out')):
     os.makedirs(os.path.join(args.path, 'stdin_and_out'))
 
 
