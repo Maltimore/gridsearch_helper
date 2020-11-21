@@ -6,6 +6,7 @@ import shutil
 from ruamel.yaml import YAML
 import pathlib
 import copy
+import subprocess
 
 yaml = YAML()
 
@@ -97,14 +98,29 @@ if not os.path.exists(repository_copy_path):
     print(f'Making repository directory {repository_copy_path}')
     os.makedirs(repository_copy_path)
 
-    print('Creating archive of git repository, including tracked changes')
+    print('Creating archive of git repository, including tracked changes (but not not tracked changes)')
+    # when the user is not in the git root directory and we perform git archive, only the contents
+    # of the current directory are put into the archive
+    # capture_output=True checks the stdout and stderr of a command
+    # text=True transforms to proper text (utf-8 presumably)
+    git_root_directory = subprocess.run(
+        ['git', 'rev-parse', '--show-toplevel'],
+        capture_output=True,
+        text=True
+    ).stdout
+    # rstrip removes whitespace from the end of the string (in our case, a newline character)
+    git_root_directory = git_root_directory.rstrip()
     git_status_clean = not os.system('git diff-index --quiet HEAD')
     if not git_status_clean:
         # git status is dirty, create archive from stash
-        os.system(f'git archive `git stash create` -o {args.path}/temporary_git_stash_archive.tar')
+        os.system(
+            f'git archive -o {args.path}/temporary_git_stash_archive.tar `git stash create` {git_root_directory}'
+        )
     else:
         # git status is clean, create archive from HEAD
-        os.system(f'git archive HEAD -o {args.path}/temporary_git_stash_archive.tar')
+        os.system(
+            f'git archive -o {args.path}/temporary_git_stash_archive.tar HEAD {git_root_directory}'
+        )
     print(f'Unpacking git archive to {repository_copy_path}')
     os.system(f'tar -xf {args.path}/temporary_git_stash_archive.tar -C {repository_copy_path}')
     os.system(f'rm {args.path}/temporary_git_stash_archive.tar')
