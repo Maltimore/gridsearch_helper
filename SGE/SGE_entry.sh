@@ -30,7 +30,8 @@
 echo Now in SGE_entry.sh
 
 array_job="$1"
-if [ "$array_job" == "is_not_array_job" ]; then
+if [ "$array_job" == "0" ]; then
+    echo This is a normal \(non-array\)-job
     output_path="$2"
     export ARRAY_JOB=1
 else
@@ -51,7 +52,7 @@ echo Hostname: "$(hostname)"
 python <<HEREDOC
 import datetime
 start_time = datetime.datetime.now()
-print(f"Start time: {start_time}")
+print(f"SGE_entry start time: {start_time}")
 import os
 import platform
 import subprocess
