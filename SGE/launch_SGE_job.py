@@ -39,7 +39,7 @@ parser.add_argument('--taskrange_end',
                     default=1,
                     help=(
                         'Default is 1. '
-                        'If (taskrange_end - taskrange_begin) == 1, this will be a normal (non-gridsearch) job.'
+                        'If (taskrange_end - taskrange_begin) == 1, this will be a normal (non-array) job.'
                     ))
 parser.add_argument('--job_name',
                     default=None,
@@ -74,13 +74,13 @@ if not os.path.exists(os.path.join(args.path, 'stdin_and_out')):
     os.makedirs(os.path.join(args.path, 'stdin_and_out'))
 
 
-gridsearch = True if args.taskrange_end - args.taskrange_begin > 0 else False
-# copy the params file to the output folder, regardless of whether this is a
-# gridsearch or not. If it is a gridsearch, we will later copy appropriate
+array_job = True if args.taskrange_end - args.taskrange_begin > 0 else False
+# copy the params file to the output folder, regardless of whether this is an
+# array-job or not. If it is an array-job, we will later copy appropriate
 # params files into each output directory (for each job)
 shutil.copyfile(args.params_path, os.path.join(args.path, 'parameters.yaml'))
 
-if gridsearch:
+if array_job:
     params = yaml.load(pathlib.Path(args.params_path))
     if not os.path.exists(os.path.join(args.path, 'job_outputs')):
         os.makedirs(os.path.join(args.path, 'job_outputs'))
@@ -143,7 +143,7 @@ qsub_command += f'-N {args.job_name} '
 qsub_command += f'-t {args.taskrange_begin}-{args.taskrange_end} '
 qsub_command += f'-l h=\'{args.node}\' ' if args.node is not None else ''
 qsub_command += f'{args.launch_script} '
-qsub_command += 'is_gridsearch ' if gridsearch else 'is_not_gridsearch '
+qsub_command += '1 ' if array_job else '0 '
 qsub_command += f'{args.path} '
 
 print('Running the following qsub command now')

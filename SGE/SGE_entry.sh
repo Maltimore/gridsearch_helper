@@ -29,17 +29,18 @@
 
 echo Now in SGE_entry.sh
 
-gridsearch="$1"
-if [ "$gridsearch" == "is_not_gridsearch" ]; then
+array_job="$1"
+if [ "$array_job" == "is_not_array_job" ]; then
     output_path="$2"
+    export ARRAY_JOB=1
 else
-    echo This is a gridsearch
+    echo This is an array job
     output_path="$2"/job_outputs/"$(printf %05d "$SGE_TASK_ID")"
+    export ARRAY_JOB=0
 fi
 echo The output path is "$output_path"
 params_path=$output_path/parameters.yaml
 
-export GRIDSEARCH=$gridsearch
 export OUTPUT_PATH=$output_path
 export PARAMS_PATH=$params_path
 
@@ -80,7 +81,7 @@ run_info = {
     "start_time": str(start_time),
     "git_hash": get_git_info()["git_hash"],
     "git_status": get_git_info()["git_status"],
-    "gridsearch": True if os.environ['GRIDSEARCH'] == 'is_gridsearch' else False,
+    "array_job": True if os.environ['ARRAY_JOB'] == 1 else False,
     "hostname": platform.uname()[1],
     "run_finished": False,
     "task_id": int(os.environ['SGE_TASK_ID']),
