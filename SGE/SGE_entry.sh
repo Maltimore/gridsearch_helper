@@ -30,21 +30,21 @@
 echo Now in SGE_entry.sh
 
 gridsearch="$1"
-if [ $gridsearch == "is_not_gridsearch" ]; then
+if [ "$gridsearch" == "is_not_gridsearch" ]; then
     output_path="$2"
 else
     echo This is a gridsearch
-    output_path="$2"/job_outputs/`printf "%05d" $SGE_TASK_ID`
+    output_path="$2"/job_outputs/"$(printf %05d "$SGE_TASK_ID")"
 fi
-echo The output path is $output_path
+echo The output path is "$output_path"
 params_path=$output_path/parameters.yaml
 
 export GRIDSEARCH=$gridsearch
 export OUTPUT_PATH=$output_path
 export PARAMS_PATH=$params_path
 
-echo Current working directory: `pwd`
-echo Hostname: `hostname`
+echo Current working directory: "$(pwd)"
+echo Hostname: "$(hostname)"
 
 
 python <<HEREDOC
@@ -94,7 +94,7 @@ HEREDOC
 ########################################################################################################################
 # starting here you can put the commands you would like to run
 
-python src/main.py --path $output_path --params_path $params_path
+python src/main.py --path "$output_path" --params_path "$params_path"
 
 
 # finish the job by putting the end time into the run_info.yaml
