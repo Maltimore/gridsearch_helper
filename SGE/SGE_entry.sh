@@ -114,8 +114,8 @@ yaml = YAML()
 run_info = yaml.load(pathlib.Path(os.environ['OUTPUT_PATH'], 'run_info.yaml'))
 end_time = datetime.datetime.now()
 run_time_seconds = (end_time - datetime.datetime.strptime(run_info['start_time'], '%Y-%m-%d %H:%M:%S.%f')).seconds
-print(f"End time: {end_time}")
-print(f"Run time (seconds): {run_time_seconds}", flush=True)
+print(f"End time (SGE_entry): {end_time}")
+print(f"Run time (SGE_entry) (seconds): {run_time_seconds}", flush=True)
 
 run_info["end_time"] = str(end_time)
 run_info["run_time_seconds"] = run_time_seconds
