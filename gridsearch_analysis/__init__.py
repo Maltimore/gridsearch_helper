@@ -1,1 +1,1 @@
-from . import collect_results, plotting
+from . import collect_results, plotting  # noqa

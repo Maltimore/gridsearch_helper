@@ -2,7 +2,7 @@ import pandas as pd
 from ruamel.yaml import YAML
 import os
 
-import util
+from . import util
 
 yaml = YAML()
 
