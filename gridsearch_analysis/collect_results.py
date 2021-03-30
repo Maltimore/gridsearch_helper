@@ -58,6 +58,5 @@ def collect_results(path):
                 str(idx).zfill(5),
                 str(len(result_dirs)).zfill(5)))
 
-        print(f"Successfully processed {dir_[:15]}")
     print(f"Collected {n_collected} out of {idx+1} runs")
     return df
