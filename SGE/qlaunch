@@ -19,7 +19,7 @@ import yaml
 @click.option('--path',
               type=str,
               help='Output directory.')
-@click.option('--launch_script',
+@click.option('--launch-script',
               type=str,
               default='cluster/SGE_entry.sh',
               help=(
@@ -29,22 +29,22 @@ import yaml
                   'You can then place your modified copy of SGE_entry.sh (possibly renamed) and place it '
                   'somewhere on your system. Then, provide the path to that script here.'
               ))
-@click.option('--params_path',
+@click.option('--params-path',
               type=str,
               default='src/parameters.yaml',
               help='Default is ./src/parameters.yaml. Path to parameters file.')
-@click.option('--taskrange_begin',
+@click.option('--taskrange-begin',
               type=int,
               default=1,
               help='Default is 1.')
-@click.option('--taskrange_end',
+@click.option('--taskrange-end',
               type=int,
               default=1,
               help=(
                   'Default is 1. '
-                  'If (taskrange_end - taskrange_begin) == 1, this will be a normal (non-array) job.'
+                  'If (taskrange-end - taskrange-begin) == 1, this will be a normal (non-array) job.'
               ))
-@click.option('--job_name',
+@click.option('--job-name',
               default=None,
               type=str,
               help='Default is the output directory of --path as the job name.')
