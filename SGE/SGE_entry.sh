@@ -3,7 +3,6 @@
 #$ -l h_vmem=4G
 #$ -l h_rt=02:00:00
 #$ -binding linear:2
-#$ -l h='*&!node11'
 #$ -o ../stdin_and_out/$TASK_ID.out
 #$ -e ../stdin_and_out/$TASK_ID.error
 
@@ -29,96 +28,29 @@
 
 echo Now in SGE_entry.sh
 
-array_job="$1"
-if [ "$array_job" == "0" ]; then
-    echo This is a normal \(non-array\)-job
-    output_path="$2"
-    export ARRAY_JOB=1
-else
-    echo This is an array job
-    output_path="$2"/job_outputs/"$(printf %05d "$SGE_TASK_ID")"
-    export ARRAY_JOB=0
+ARRAY_JOB="$(( SGE_TASK_LAST > 1 ))"
+if (( ARRAY_JOB )); then
+    OUTPUT_PATH+="/job_outputs/$(printf %05d "$SGE_TASK_ID")"
 fi
-echo The output path is "$output_path"
-params_path=$output_path/parameters.yaml
+echo The output path is "$OUTPUT_PATH"
+mkdir -p "$OUTPUT_PATH"
 
-export OUTPUT_PATH=$output_path
-export PARAMS_PATH=$params_path
+export OUTPUT_PATH
+export ARRAY_JOB
+export PARAMS_PATH="${OUTPUT_PATH}/parameters.yaml"
+export RANDOM_SEED="$RANDOM"
 
 echo Current working directory: "$(pwd)"
 echo Hostname: "$(hostname)"
 
 
-python <<HEREDOC
-import datetime
-start_time = datetime.datetime.now()
-print(f"SGE_entry start time: {start_time}")
-import os
-import platform
-import subprocess
-import warnings
-from ruamel.yaml import YAML
-import pathlib
-
-yaml = YAML()
+# gather information about the current environment and save it to run_info.yaml
+"$LAUNCH_SCRIPT" --action setup
 
 
-def get_git_info():
-    try:
-        return_dict = {
-            "git_hash": subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode('utf-8').strip('\n'),
-            "git_status":  subprocess.check_output(['git', 'status', '--porcelain']).decode('utf-8'),
-        }
-    except Exception:
-        warnings.warn('\nWarning! Failed to get git revision hash!\n')
-        return_dict = {
-            "git_hash": "failed_to_get",
-            "git_status": "failed_to_get"
-        }
-    return return_dict
-
-
-run_info = {
-    "start_time": str(start_time),
-    "git_hash": get_git_info()["git_hash"],
-    "git_status": get_git_info()["git_status"],
-    "array_job": True if os.environ['ARRAY_JOB'] == 1 else False,
-    "hostname": platform.uname()[1],
-    "run_finished": False,
-    "task_id": int(os.environ['SGE_TASK_ID']),
-}
-yaml.dump(run_info, pathlib.Path(os.environ['OUTPUT_PATH'], 'run_info.yaml'))
-HEREDOC
-
-########################################################################################################################
-########################################################################################################################
-########################################################################################################################
-########################################################################################################################
 # starting here you can put the commands you would like to run
-
-python src/main.py --path "$output_path" --params_path "$params_path"
+python share/gridsearch/cli_wrapper.py "$OUTPUT_PATH" "$PARAMS_PATH" "$RANDOM_SEED"
 
 
 # finish the job by putting the end time into the run_info.yaml
-########################################################################################################################
-########################################################################################################################
-########################################################################################################################
-########################################################################################################################
-python <<HEREDOC
-import datetime
-from ruamel.yaml import YAML
-import pathlib
-import os
-
-yaml = YAML()
-run_info = yaml.load(pathlib.Path(os.environ['OUTPUT_PATH'], 'run_info.yaml'))
-end_time = datetime.datetime.now()
-run_time_seconds = (end_time - datetime.datetime.strptime(run_info['start_time'], '%Y-%m-%d %H:%M:%S.%f')).seconds
-print(f"End time (SGE_entry): {end_time}")
-print(f"Run time (SGE_entry) (seconds): {run_time_seconds}", flush=True)
-
-run_info["end_time"] = str(end_time)
-run_info["run_time_seconds"] = run_time_seconds
-run_info["run_finished"] = True
-yaml.dump(run_info, pathlib.Path(os.environ['OUTPUT_PATH'], 'run_info.yaml'))
-HEREDOC
+"$LAUNCH_SCRIPT" --action cleanup
