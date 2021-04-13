@@ -27,13 +27,13 @@
 # default is necessary for the Advance Reservation system to assure resource
 # availability.
 
-echo Now in SGE_entry.sh
+echo "Now in SGE_entry.sh"
 
 ARRAY_JOB="$(( SGE_TASK_LAST > 1 ))"
 if (( ARRAY_JOB )); then
     OUTPUT_PATH+="/job_outputs/$(printf %05d "$SGE_TASK_ID")"
 fi
-echo The output path is "$OUTPUT_PATH"
+echo "The output path is ${OUTPUT_PATH}"
 mkdir -p "$OUTPUT_PATH"
 
 export OUTPUT_PATH
@@ -41,8 +41,8 @@ export ARRAY_JOB
 export PARAMS_PATH="${OUTPUT_PATH}/parameters.yaml"
 export RANDOM_SEED="$RANDOM"
 
-echo Current working directory: "$(pwd)"
-echo Hostname: "$(hostname)"
+echo "Current working directory: $(pwd)"
+echo "Hostname: $(hostname)"
 
 
 # gather information about the current environment and save it to run_info.yaml
