@@ -6,10 +6,9 @@
 #$ -o ../stdin_and_out/$TASK_ID.out
 #$ -e ../stdin_and_out/$TASK_ID.error
 
-########################################################################
-# YOU SHOULD COPY AND MODIFY THIS FILE TO SUIT YOUR NEEDS.
-# I RECOMMEND TO ONLY MODIFY THE PART BETWEEN THE COMMENTED LINES
-########################################################################
+# You should copy and modify this file to suit your needs.
+# I recommend to only modify the part almost all the way at the bottom where it
+# is indicated you should change.
 
 # EXPLANATION OF SOME PARAMETERS
 # -cwd : run job in the current directory (has no effect here! needs to be passed in the calling script)
@@ -24,7 +23,9 @@
 # -o /path/ : where to put stdout
 # -e /path/ : where to put sderr
 
-# Jobs that do not specify an elapsed time limit inherit a system default. The default is necessary for the Advance Reservation system to assure resource availability. 
+# Jobs that do not specify an elapsed time limit inherit a system default. The
+# default is necessary for the Advance Reservation system to assure resource
+# availability.
 
 echo Now in SGE_entry.sh
 
