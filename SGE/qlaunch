@@ -25,9 +25,11 @@ import yaml
               help=(
                   'Default is ./cluster/SGE_entry.sh. '
                   'Path to the script that should be run. '
-                  'You should take the example script at SGE/SGE_entry.sh and modify it to your needs. '
-                  'You can then place your modified copy of SGE_entry.sh (possibly renamed) and place it '
-                  'somewhere on your system. Then, provide the path to that script here.'
+                  'You should take the example script at SGE/SGE_entry.sh and '
+                  'modify it to your needs. '
+                  'You can then place your modified copy of SGE_entry.sh (possibly renamed) '
+                  'and place it somewhere on your system. '
+                  'Then, provide the path to that script here.'
               ))
 @click.option('--params-path',
               type=str,
@@ -42,7 +44,7 @@ import yaml
               default=1,
               help=(
                   'Default is 1. '
-                  'If (taskrange-end - taskrange-begin) == 1, this will be a normal (non-array) job.'
+                  'If (taskrange-end - taskrange-begin) = 1, this will be a normal (non-array) job.'
               ))
 @click.option('--job-name',
               default=None,
@@ -52,7 +54,7 @@ import yaml
               default='*',
               type=str,
               help=(
-                  'Default is None. Set the node to run on. This setting will be passed directly to '
+                  'Default is None. node to run on. This setting will be passed directly to '
                   'qsub in the form of -l h=<node>. '
                   'If you don\'t set this, then the setting in your SGE_entry.sh will '
                   'be used. If you do not set that either, it is equivalent to \'*\'.'
@@ -61,7 +63,8 @@ import yaml
               default='launch',
               type=click.Choice(('launch', 'setup', 'cleanup')),
               help=(
-                  'As an enduser, you do not have to worry about this option. It is for internal use only.'
+                  'As an enduser, you do not have to worry about this option. '
+                  'It is for internal use only.'
               ))
 def main(**kwargs):
     args = Namespace(**kwargs)
@@ -96,7 +99,7 @@ def main(**kwargs):
     shutil.copyfile(args.params_path, os.path.join(args.path, 'parameters.yaml'))
 
     if array_job:
-        params = yaml.load(pathlib.Path(args.params_path))
+        params = yaml.safe_load(pathlib.Path(args.params_path))
         if not os.path.exists(os.path.join(args.path, 'job_outputs')):
             os.makedirs(os.path.join(args.path, 'job_outputs'))
 
@@ -110,8 +113,8 @@ def main(**kwargs):
 
     repository_copy_path = os.path.join(args.path, 'repository')
     if os.path.exists(repository_copy_path):
-        print('There is already a (possibly old or incomplete) copy of the repository at the selected output path ' +
-              repository_copy_path)
+        print('There is already a (possibly old or incomplete) copy of the repository at the '
+              'selected output path ' + repository_copy_path)
         answer = input('Delete the copy and re-create it? (y/n)')
         if answer == 'y':
             print(f'Ok, deleting directory at {repository_copy_path}')
@@ -121,10 +124,11 @@ def main(**kwargs):
         print(f'Making repository directory {repository_copy_path}')
         os.makedirs(repository_copy_path)
 
-        print('Creating archive of git repository, including tracked changes (but not not tracked changes)')
-        # when the user is not in the git root directory and we perform git archive, only the contents
-        # of the current directory are put into the archive
-        # capture_output=True checks the stdout and stderr of a command
+        print('Creating archive of git repository, including tracked changes '
+              '(but not not tracked changes)')
+        # when the user is not in the git root directory and we perform git
+        # archive, only the contents of the current directory are put into the
+        # archive capture_output=True checks the stdout and stderr of a command
         # text=True transforms to proper text (utf-8 presumably)
         git_root_directory = subprocess.run(
             ['git', 'rev-parse', '--show-toplevel'],
@@ -163,7 +167,7 @@ def main(**kwargs):
         args.launch_script
     ])
 
-    print('Running the following qsub command now')
+    print('Running the following qsub command now:')
     print(qsub_command)
     subprocess.run(qsub_command)
 
@@ -189,7 +193,9 @@ def setup():
 def cleanup():
     run_info = yaml.safe_load(pathlib.Path(os.environ['OUTPUT_PATH'], 'run_info.yaml'))
     end_time = datetime.datetime.now()
-    run_time_seconds = (end_time - datetime.datetime.strptime(run_info['start_time'], '%Y-%m-%d %H:%M:%S.%f')).seconds
+    run_time_seconds = (
+        end_time - datetime.datetime.strptime(run_info['start_time'], '%Y-%m-%d %H:%M:%S.%f')
+    ).seconds
     print(f"End time (SGE_entry): {end_time}")
     print(f"Run time (SGE_entry) (seconds): {run_time_seconds}", flush=True)
 
@@ -246,8 +252,10 @@ def assign_hyperparams(id_, params):
 def get_git_info():
     try:
         return_dict = {
-            "git_hash": subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode('utf-8').strip('\n'),
-            "git_status":  subprocess.check_output(['git', 'status', '--porcelain']).decode('utf-8'),
+            "git_hash": subprocess.check_output(['git', 'rev-parse', 'HEAD']
+                                                ).decode('utf-8').strip('\n'),
+            "git_status":  subprocess.check_output(['git', 'status', '--porcelain']
+                                                   ).decode('utf-8'),
         }
     except Exception:
         warnings.warn('\nWarning! Failed to get git revision hash!\n')
