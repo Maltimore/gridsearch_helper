@@ -99,7 +99,8 @@ def main(**kwargs):
     shutil.copyfile(args.params_path, os.path.join(args.path, 'parameters.yaml'))
 
     if array_job:
-        params = yaml.safe_load(pathlib.Path(args.params_path))
+        with open(pathlib.Path(args.params_path), 'r') as fd:
+            params = yaml.safe_load(fd)
         if not os.path.exists(os.path.join(args.path, 'job_outputs')):
             os.makedirs(os.path.join(args.path, 'job_outputs'))
 
@@ -191,7 +192,8 @@ def setup():
 
 
 def cleanup():
-    run_info = yaml.safe_load(pathlib.Path(os.environ['OUTPUT_PATH'], 'run_info.yaml'))
+    with open(pathlib.Path(os.environ['OUTPUT_PATH'], 'run_info.yaml'), 'r') as fd:
+        run_info = yaml.safe_load(fd)
     end_time = datetime.datetime.now()
     run_time_seconds = (
         end_time - datetime.datetime.strptime(run_info['start_time'], '%Y-%m-%d %H:%M:%S.%f')
