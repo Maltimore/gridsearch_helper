@@ -7,7 +7,7 @@ setuptools.setup(
     name="gridsearch_analysis",
     version="0.1.0",
     author="Malte Esders",
-    author_email="will_add@later.com",
+    author_email="git@maltimore.info",
     description="Analysis of gridsearch performed with gridsearch_helper",
     long_description=long_description,
     long_description_content_type="text/markdown",
