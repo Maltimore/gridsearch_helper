@@ -208,22 +208,25 @@ def cleanup():
         yaml.dump(run_info, fd)
 
 
-def flatten_dict(thed):
+def flatten_dict(dictionary):
     """
     This function recursively flattens an arbitrarily nested dictionary.
     The keys into the flattened dictionary are tuples of the form
-    (key0, key1, key2..)
+    (key, sub_key, sub_sub_key..)
+    :param dictionary: (possibly nested) dict
     """
-    thed = copy.deepcopy(thed)
-    to_flatten = {}
-    for key in thed.keys():
-        if isinstance(thed[key], dict):
-            flattened = flatten_dict(thed[key])
-            for key2 in flattened.keys():
-                to_flatten[(key,) + key2] = flattened[key2]
+    dictionary = copy.deepcopy(dictionary)
+    flattened = {}
+    for key in dictionary.keys():
+        if isinstance(dictionary[key], dict):
+            flattened = flatten_dict(dictionary[key])
+            for sub_key in flattened.keys():
+                flattened[(key,) + sub_key] = flattened[sub_key]
         else:
-            to_flatten[(key,)] = thed[key]
-    return to_flatten
+            # the value at this key is not a dictionary, so just assign the value
+            # to the flattened dict (but make the key a tuple)
+            flattened[(key,)] = dictionary[key]
+    return flattened
 
 
 def assign_hyperparams(id_, params):
