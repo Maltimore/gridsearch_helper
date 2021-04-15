@@ -1,10 +1,8 @@
 import pandas as pd
-from ruamel.yaml import YAML
+import yaml
 import os
 
 from . import util
-
-yaml = YAML()
 
 
 def collect_results(path):
@@ -33,13 +31,14 @@ def collect_results(path):
         if not os.path.exists(program_state_path):
             print('Skipping {}.. because no program_state file'.format(
                 dir_[:15]))
+            continue
 
         with open(run_info_path) as f:
-            run_info = dict(yaml.load(f))
+            run_info = dict(yaml.safe_load(f))
         with open(params_path) as f:
-            params = dict(yaml.load(f))
+            params = dict(yaml.safe_load(f))
         with open(program_state_path) as f:
-            program_state = dict(yaml.load(f))
+            program_state = dict(yaml.safe_load(f))
 
         new_row = pd.concat([
             pd.Series(util.flatten_dict(params['default'], flatten_key_method='/')),
