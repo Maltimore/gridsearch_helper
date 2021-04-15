@@ -1,1 +1,2 @@
 - flatten_dict exists twice, once in SGE and once in gridsearch_analysis/util.py
+- make sure that the top-level keys in params file are  config1, config2 etc
