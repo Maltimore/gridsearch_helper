@@ -126,24 +126,33 @@ def main(**kwargs):
         os.makedirs(repository_copy_path)
 
         print('Creating archive of git repository, including tracked changes '
-              '(but not not tracked changes)')
+              '(but not untracked changes)')
         # when the user is not in the git root directory and we perform git
         # archive, only the contents of the current directory are put into the
         # archive capture_output=True checks the stdout and stderr of a command
         # text=True transforms to proper text (utf-8 presumably)
+        # rstrip removes whitespace from the end of the string (in our case, a newline character)
         git_root_directory = subprocess.run(
             ['git', 'rev-parse', '--show-toplevel'],
             capture_output=True,
             text=True
-        ).stdout
-        # rstrip removes whitespace from the end of the string (in our case, a newline character)
-        git_root_directory = git_root_directory.rstrip()
+        ).stdout.rstrip()
         git_status_clean = not os.system('git diff-index --quiet HEAD')
         if not git_status_clean:
             # git status is dirty, create archive from stash
-            os.system(
-                f'git archive -o {args.path}/temporary_git_stash_archive.tar `git stash create` {git_root_directory}'
-            )
+            # create a stash and save the hash
+            stash_hash = subprocess.run(
+                ['git', 'stash', 'create'],
+                capture_output=True,
+                text=True
+            ).stdout.rstrip()
+            command = [
+                'git', 'archive',
+                '-o', os.path.join(args.path, 'temporary_git_stash_archive.tar'),
+                stash_hash,
+                git_root_directory
+            ]
+            subprocess.run(command)
         else:
             # git status is clean, create archive from HEAD
             os.system(
