@@ -51,8 +51,9 @@ echo "Hostname: $(hostname)"
 "$QLAUNCH_SCRIPT" --action setup
 
 
-# starting here you can put the commands you would like to run
-python share/gridsearch/cli_wrapper.py "$OUTPUT_PATH" "$PARAMS_PATH" "$RANDOM_SEED"
+# starting here you can put the commands you would like to run. You should use the pre-defined variables
+# "$OUTPUT_PATH" "$PARAMS_PATH" (and "$RANDOM_SEED" if you need to set a seed)
+python path/to/main.py "$OUTPUT_PATH" "$PARAMS_PATH" "$RANDOM_SEED"
 
 
 # finish the job by putting the end time into the run_info.yaml
