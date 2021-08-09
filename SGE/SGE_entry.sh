@@ -46,7 +46,9 @@ echo "Hostname: $(hostname)"
 
 
 # gather information about the current environment and save it to run_info.yaml
-"$LAUNCH_SCRIPT" --action setup
+# QLAUNCH_SCRIPT is a variable created in the qlaunch file and it points to the
+# location of the qlaunch file.
+"$QLAUNCH_SCRIPT" --action setup
 
 
 # starting here you can put the commands you would like to run
@@ -54,4 +56,4 @@ python share/gridsearch/cli_wrapper.py "$OUTPUT_PATH" "$PARAMS_PATH" "$RANDOM_SE
 
 
 # finish the job by putting the end time into the run_info.yaml
-"$LAUNCH_SCRIPT" --action cleanup
+"$QLAUNCH_SCRIPT" --action cleanup

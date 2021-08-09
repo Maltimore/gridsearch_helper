@@ -169,7 +169,7 @@ def main(**kwargs):
     qsub_command = ([
         'qsub',
         '-cwd',
-        '-v', f'LAUNCH_SCRIPT={__file__}',
+        '-v', f'QLAUNCH_SCRIPT={__file__}',
         '-v', f'OUTPUT_PATH={args.path}',
         '-N', f'{args.job_name}',
         '-t', f'{args.taskrange_begin}-{args.taskrange_end}',
