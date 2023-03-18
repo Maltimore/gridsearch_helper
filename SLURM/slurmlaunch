@@ -171,7 +171,8 @@ def setup():
         "git_status": get_git_info()["git_status"],
         "hostname": platform.uname()[1],
         "run_finished": False,
-        "task_id": int(os.environ['SLURM_PROCID']),
+        "task_id": int(os.environ['SLURM_ARRAY_TASK_ID']),
+        "random_seed": int(os.environ['RANDOM_SEED']),
     }
     with open(pathlib.Path(os.environ['OUTPUT_PATH'], 'run_info.yaml'), "w") as fd:
         yaml.dump(run_info, fd)
