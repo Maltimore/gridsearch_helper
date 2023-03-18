@@ -26,9 +26,9 @@ import yaml
               help=(
                   'Default is ./cluster/SLURM_entry.sh. '
                   'Path to the script that should be run. '
-                  'You should take the example script at SGE/SGE_entry.sh and '
+                  'You should take the example script at SLURM/SLURM_entry.sh and '
                   'modify it to your needs. '
-                  'You can then place your modified copy of SGE_entry.sh (possibly renamed) '
+                  'You can then place your modified copy of SLURM_entry.sh (possibly renamed) '
                   'and place it somewhere on your system. '
                   'Then, provide the path to that script here.'
               ))
@@ -81,8 +81,6 @@ def main(**kwargs):
             sys.exit('Ok, no job started')
     else:
         os.makedirs(args.path)
-    if not os.path.exists(os.path.join(args.path, 'logs')):
-        os.makedirs(os.path.join(args.path, 'logs'))
 
     array_job = True if args.taskrange_end - args.taskrange_begin > 0 else False
     # copy the params file to the output folder, regardless of whether this is an
@@ -90,70 +88,60 @@ def main(**kwargs):
     # params files into each output directory (for each job)
     shutil.copyfile(args.params_path, os.path.join(args.path, 'parameters.yaml'))
 
+    # assign hyperparams for each point on the grid and create yaml files for each job
     if array_job:
         with open(pathlib.Path(args.params_path), 'r') as fd:
             params = yaml.safe_load(fd)
-        if not os.path.exists(os.path.join(args.path, 'job_outputs')):
-            os.makedirs(os.path.join(args.path, 'job_outputs'))
-
         for job_idx in range(args.taskrange_begin, args.taskrange_end + 1):
-            job_output_dir = os.path.join(args.path, 'job_outputs', str(job_idx).zfill(5))
-            if not os.path.exists(job_output_dir):
-                os.makedirs(job_output_dir)
+            job_output_path = os.path.join(args.path, 'job_outputs', str(job_idx).zfill(5))
+            os.makedirs(job_output_path, exist_ok=True)
             job_params = assign_hyperparams(job_idx, copy.deepcopy(params))
-            with open(pathlib.Path(job_output_dir, 'parameters.yaml'), "w") as fd:
+            with open(os.path.join(job_output_path, 'parameters.yaml'), "w") as fd:
                 yaml.dump(job_params, fd)
 
+    # copy the repository
     repository_copy_path = os.path.join(args.path, 'repository')
     if os.path.exists(repository_copy_path):
-        print('There is already a (possibly old or incomplete) copy of the repository at the '
-              'selected output path ' + repository_copy_path)
-        answer = input('Delete the copy and re-create it? (y/n)')
-        if answer == 'y':
-            print(f'Ok, deleting directory at {repository_copy_path}')
-            shutil.rmtree(repository_copy_path)
-    if not os.path.exists(repository_copy_path):
-        # repository copy does not exist yet, create it
-        print(f'Making repository directory {repository_copy_path}')
-        os.makedirs(repository_copy_path)
+        shutil.rmtree(repository_copy_path)
+    print(f'Making repository directory {repository_copy_path}')
+    os.makedirs(repository_copy_path)
 
-        print('Creating archive of git repository, including tracked changes '
-              '(but not untracked changes)')
-        # when the user is not in the git root directory and we perform git
-        # archive, only the contents of the current directory are put into the
-        # archive capture_output=True checks the stdout and stderr of a command
-        # text=True transforms to proper text (utf-8 presumably)
-        # rstrip removes whitespace from the end of the string (in our case, a newline character)
-        git_root_directory = subprocess.run(
-            ['git', 'rev-parse', '--show-toplevel'],
+    print('Creating archive of git repository, including tracked changes '
+          '(but not untracked changes)')
+    # when the user is not in the git root directory and we perform git
+    # archive, only the contents of the current directory are put into the
+    # archive capture_output=True checks the stdout and stderr of a command
+    # text=True transforms to proper text (utf-8 presumably)
+    # rstrip removes whitespace from the end of the string (in our case, a newline character)
+    git_root_directory = subprocess.run(
+        ['git', 'rev-parse', '--show-toplevel'],
+        capture_output=True,
+        text=True
+    ).stdout.rstrip()
+    git_status_clean = not os.system('git diff-index --quiet HEAD')
+    if not git_status_clean:
+        # git status is dirty, create archive from stash
+        # create a stash and save the hash
+        stash_hash = subprocess.run(
+            ['git', 'stash', 'create'],
             capture_output=True,
             text=True
         ).stdout.rstrip()
-        git_status_clean = not os.system('git diff-index --quiet HEAD')
-        if not git_status_clean:
-            # git status is dirty, create archive from stash
-            # create a stash and save the hash
-            stash_hash = subprocess.run(
-                ['git', 'stash', 'create'],
-                capture_output=True,
-                text=True
-            ).stdout.rstrip()
-            command = [
-                'git', 'archive',
-                '-o', os.path.join(args.path, 'temporary_git_stash_archive.tar'),
-                stash_hash,
-                git_root_directory
-            ]
-            subprocess.run(command)
-        else:
-            # git status is clean, create archive from HEAD
-            os.system(
-                f'git archive -o {args.path}/temporary_git_stash_archive.tar HEAD {git_root_directory}'
-            )
-        print(f'Unpacking git archive to {repository_copy_path}')
-        os.system(f'tar -xf {args.path}/temporary_git_stash_archive.tar -C {repository_copy_path}')
-        os.system(f'rm {args.path}/temporary_git_stash_archive.tar')
-
+        command = [
+            'git', 'archive',
+            '-o', os.path.join(args.path, 'temporary_git_stash_archive.tar'),
+            stash_hash,
+            git_root_directory
+        ]
+        subprocess.run(command)
+    else:
+        # git status is clean, create archive from HEAD
+        os.system(
+            f'git archive -o {args.path}/temporary_git_stash_archive.tar HEAD {git_root_directory}'
+        )
+    print(f'Unpacking git archive to {repository_copy_path}')
+    os.system(f'tar -xf {args.path}/temporary_git_stash_archive.tar -C {repository_copy_path}')
+    os.system(f'rm {args.path}/temporary_git_stash_archive.tar')
     print(f'Switching to repository directory {repository_copy_path}')
     os.chdir(repository_copy_path)
     print(f'Now in {os.getcwd()}')
@@ -161,13 +149,12 @@ def main(**kwargs):
     qsub_command = ([
         'sbatch',
         f'--export=ALL,LAUNCH_SCRIPT={__file__},OUTPUT_PATH={args.path}',
-        f'--output={args.path}/logs/%x_%A_%a.out',
-        f'--error={args.path}/logs/%x_%A_%a.error',
+        f'--output={args.path}/%x_%A_%a.out',
+        f'--error={args.path}/%x_%A_%a.error',
         f'--job-name={args.job_name}',
         f'--array={args.taskrange_begin}-{args.taskrange_end}',
         args.launch_script
     ])
-
     print('Running the following qsub command now:')
     print(qsub_command)
     subprocess.run(qsub_command)
@@ -175,17 +162,14 @@ def main(**kwargs):
 
 def setup():
     start_time = datetime.datetime.now()
-    print(f"SGE_entry start time: {start_time}")
-
+    print(f"start time: {start_time}")
     run_info = {
         "start_time": str(start_time),
         "git_hash": get_git_info()["git_hash"],
         "git_status": get_git_info()["git_status"],
-        "array_job": True if os.environ['ARRAY_JOB'] == 1 else False,
         "hostname": platform.uname()[1],
         "run_finished": False,
-        "task_id": int(os.environ['SGE_TASK_ID']),
-        "random_seed": int(os.environ['RANDOM_SEED']),
+        "task_id": int(os.environ['SLURM_PROCID']),
     }
     with open(pathlib.Path(os.environ['OUTPUT_PATH'], 'run_info.yaml'), "w") as fd:
         yaml.dump(run_info, fd)
@@ -198,9 +182,8 @@ def cleanup():
     run_time_seconds = (
         end_time - datetime.datetime.strptime(run_info['start_time'], '%Y-%m-%d %H:%M:%S.%f')
     ).seconds
-    print(f"End time (SGE_entry): {end_time}")
-    print(f"Run time (SGE_entry) (seconds): {run_time_seconds}", flush=True)
-
+    print(f"End time : {end_time}")
+    print(f"Run time (seconds): {run_time_seconds}", flush=True)
     run_info["end_time"] = str(end_time)
     run_info["run_time_seconds"] = run_time_seconds
     run_info["run_finished"] = True
@@ -215,18 +198,17 @@ def flatten_dict(dictionary):
     (key, sub_key, sub_sub_key..)
     :param dictionary: (possibly nested) dict
     """
-    dictionary = copy.deepcopy(dictionary)
+    def flatten_recursive(flat_tuple, dictionary, flattened):
+        for key, value in dictionary.items():
+            new_flat_tuple = flat_tuple + (key,)
+            if isinstance(value, dict):
+                flattened = flatten_recursive(new_flat_tuple, value, flattened)
+            else:
+                flattened[new_flat_tuple] = value
+        return flattened
+
     flattened = {}
-    for key in dictionary.keys():
-        if isinstance(dictionary[key], dict):
-            flattened = flatten_dict(dictionary[key])
-            for sub_key in flattened.keys():
-                flattened[(key,) + sub_key] = flattened[sub_key]
-        else:
-            # the value at this key is not a dictionary, so just assign the value
-            # to the flattened dict (but make the key a tuple)
-            flattened[(key,)] = dictionary[key]
-    return flattened
+    return flatten_recursive(tuple(), dictionary, flattened)
 
 
 def assign_hyperparams(id_, params):
@@ -240,18 +222,25 @@ def assign_hyperparams(id_, params):
         list items corresponding to the relevant hyperparameter combination.
     """
     gridsearch_params = params['gridsearch']
-    flattened_gridsearch_params = flatten_dict(gridsearch_params)
-    param_combos = list(itertools.product(*flattened_gridsearch_params.values()))
-    param_combo = param_combos[(id_ - 1) % len(param_combos)]
-    for key_idx, key in enumerate(flattened_gridsearch_params.keys()):
-        if len(key) == 2:
-            params['default'][key[1]] = param_combo[key_idx]
-        else:
-            subdict = params['default'][key[1]]
-            for subkey in key[2:-1]:
-                subdict = subdict[subkey]
-            subdict[key[-1]] = param_combo[key_idx]
-    return params
+    new_params = copy.deepcopy(params['default'])
+    # keep in mind that the top level in the 'gridsearch' section are separate configs, i.e.
+    # they shouldn't be handled with the outer product
+    param_combos = []
+    for key, value in gridsearch_params.items():
+        flattened = flatten_dict(value)
+        flattened_keys_repeated = [list(itertools.repeat(subkey, len(flattened[subkey]))) for subkey in flattened.keys()]
+        key_combos =  list(itertools.product(*flattened_keys_repeated))
+        param_combos = list(itertools.product(*flattened.values()))
+        id_ = (id_ - 1) % len(param_combos)
+        key_combo = key_combos[id_]
+        param_combo = param_combos[id_]
+
+    for key_idx, key in enumerate(key_combo):
+        temp_dict = new_params
+        for subkey in key[:-1]:
+            temp_dict = temp_dict[subkey]
+        temp_dict[key[-1]] = param_combo[key_idx]
+    return {'default': new_params}
 
 
 def get_git_info():
