@@ -36,21 +36,27 @@ import yaml
               type=str,
               default='parameters.yaml',
               help='Default is ./parameters.yaml. Path to parameters file.')
-@click.option('--taskrange-begin',
-              type=int,
-              default=1,
-              help='Default is 1.')
-@click.option('--taskrange-end',
-              type=int,
-              default=1,
-              help=(
-                  'Default is 1. '
-                  'If (taskrange-end - taskrange-begin) = 1, this will be a normal (non-array) job.'
-              ))
+@click.option('--taskrange',
+              type=str,
+              default=1-1,
+              help='In format from-to, so to get jobs from 3 to 5 do 3-5. Default is 1-1.'
+                   'If (taskrange-end - taskrange-begin) = 1, this will be a normal (non-array) job.'
+              )
 @click.option('--job-name',
               default=None,
               type=str,
-              help='Default is the output directory of --path as the job name.')
+              help='By default the last directory of --path is the job name.')
+@click.option('--time',
+              default=None,
+              type=str,
+              help='Time limit for each task in HH:MM:SS format.'
+              )
+@click.option('--partition',
+              default=None,
+              type=str,
+              help=('Name of the partition to run on. Tip: Find available partitions on SLURM '
+                    'with sinfo.')
+              )
 @click.option('--action',
               default='launch',
               type=click.Choice(('launch', 'setup', 'cleanup')),
@@ -152,9 +158,13 @@ def main(**kwargs):
         f'--output={args.path}/job_outputs/%5a/sdout',
         f'--error={args.path}/job_outputs/%5a/sderror',
         f'--job-name={args.job_name}',
-        f'--array={args.taskrange_begin}-{args.taskrange_end}',
-        args.launch_script
+        f'--array={args.taskrange_begin}-{args.taskrange_end}'
     ])
+    if args.time is not None:
+        qsub_command += [f'--time={args.time}']
+    if args.partition is not None:
+        qsub_command += [f'--partition={args.partition}']
+    qsub_command += [args.launch_script]
     print('Running the following qsub command now:')
     print(qsub_command)
     subprocess.run(qsub_command)
