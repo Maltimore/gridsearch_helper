@@ -1,6 +1,17 @@
 # Gridsearch Helper
-This repository contains some helper scripts to launch your parallelized gridsearch with a scheduling system like sun grid engine (in fact at the moment only sun grid engine is supported).
+This repository contains some helper scripts to launch your parallelized gridsearch with the SLURM scheduling system. In the past there was also support for Sun Grid Engine, now called Univa grid engine. It shouldn't be hard to re-add support for that if there is interest.
 Additionally it also provides a python package to collect and visualize the results of the gridsearch.
+
+
+## What problems does `gridsearch-helper` solve?
+A common occurrence is that you want to run a grid search over hyperparameters. For simple grid searches, this is not very complicated, but for more complex setups (e.g. including nested hyperparameter dicts), this becomes cumbersome. `gridsearch-helper` helps with that. Additionally, sometimes you want to run several gridsearches simultaneously and change the code in between. A problem occurs if you start a gridsearch and some jobs are put into the waiting queue. Then you change the code for another gridsearch that you want to run. The jobs from your old gridsearch will eventually get activated, but they will now run the new code, which you are in the middle of changing! `gridsearch_helper` helps with that, too. Every time you start a new job, a copy of the current version of your repository is made. The gridsearch is then executed within this copy. What's especially great about this is that this happens without you even noticing or having to care about it.
+
+## Requirements in your code
+In order for this to work, unfortunately some assumptions have to be made about your code. I hope that making modifications to your code such that it fulfills these requirements is not too hard.
+- Your project must be version controlled with git
+- Your code must be able to read its hyperparameters from a `YAML` file, and your code must accept a command line parameter like `--parameters_file=...` which tells it from where to read the `YAML` file.
+- if you use data or other external files in your code, either these data need to be part of your repository, or your code must use absolute paths to these data
+- Your code must be set up such that it takes a command line parameter like `--output_path=...` and writes all its output in (subfolders of) this path
 
 ## Usage - running gridsearch jobs
 Place this repository anywhere on your system. This program assumes that you have an entry point into your project that is a module called main.py, containing the function main(params), where params is a parameter dictionary.
