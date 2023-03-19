@@ -3,29 +3,40 @@ This repository contains some helper scripts to launch your parallelized gridsea
 Additionally it also provides a python package to collect and visualize the results of the gridsearch.
 
 
-## What problems does `gridsearch-helper` solve?
-A common occurrence is that you want to run a grid search over hyperparameters. For simple grid searches, this is not very complicated, but for more complex setups (e.g. including nested hyperparameter dicts), this becomes cumbersome. `gridsearch-helper` helps with that. Additionally, sometimes you want to run several gridsearches simultaneously and change the code in between. A problem occurs if you start a gridsearch and some jobs are put into the waiting queue. Then you change the code for another gridsearch that you want to run. The jobs from your old gridsearch will eventually get activated, but they will now run the new code, which you are in the middle of changing! `gridsearch_helper` helps with that, too. Every time you start a new job, a copy of the current version of your repository is made. The gridsearch is then executed within this copy. What's especially great about this is that this happens without you even noticing or having to care about it.
+## What problems does `gridsearch_helper` solve?
+A common problem is that you want to run a grid search over hyperparameters. For simple grid searches, this is not very complicated, but for more complex setups (e.g. including nested hyperparameter dicts), this becomes cumbersome. `gridsearch_helper` helps with that. Additionally, sometimes you want to run several gridsearches simultaneously and change the code in between. A problem occurs if you start a gridsearch and some jobs are put into the waiting queue. Then you change the code for another gridsearch that you want to run. The jobs from your old gridsearch will eventually get activated, but they will now run the new code, which you are in the middle of changing! `gridsearch_helper` helps with that, too. Every time you start a new job, a copy of the current version of your repository is made. The gridsearch is then executed within this copy. What's especially great about this is that this happens without you even noticing or having to care about it.
 
 ## Requirements in your code
 In order for this to work, unfortunately some assumptions have to be made about your code. I hope that making modifications to your code such that it fulfills these requirements is not too hard.
 - Your project must be version controlled with git
 - Your code must be able to read its hyperparameters from a `YAML` file, and your code must accept a command line parameter like `--parameters_file=...` which tells it from where to read the `YAML` file.
-- if you use data or other external files in your code, either these data need to be part of your repository, or your code must use absolute paths to these data
+- if you use data or other external files in your code, either these data need to be part of your git repository, or your code must use absolute paths to these data
 - Your code must be set up such that it takes a command line parameter like `--output_path=...` and writes all its output in (subfolders of) this path
 
 ## Usage - running gridsearch jobs
-Place this repository anywhere on your system. This program assumes that you have an entry point into your project that is a module called main.py, containing the function main(params), where params is a parameter dictionary.
+Place this repository anywhere on your system.
 
-```python
-# filename: main.py
-
-def main(params):
-	# ...
+You need to have a `YAML` file in which you have two sections, one being `'default'`, containing the default parameters, and the other `'gridsearch'`, which is again split into one or more config sections (see below). Parameters to be gridsearched are given with their values in YAML-lists.
+```YAML
+default:
+  x_y_step: 0.1
+  zstep: -0.035
+  nn_architecture: ['dense50', 'softplus', 'dense100', 'softplus']
+  gamma: 0.9
+  target_update_rate: 1000
+  lr: 0.0003
+  initial_temperature: 3.001
+  learning_rule: double_q_learning
+gridsearch:
+  learning_rule:
+  - double_q_learning
+  - PPO
+  target_update_rate:
+  - 500
+  - 1000
+  - 10000
 ```
-
-It also assumes that in the same directory as your main.py you have a file called parameters.yaml in which you have two sections, one being 'default', containing the default parameters, and the other 'gridsearch', in which parameters to be gridsearched are given with their values in YAML-lists. See the example YAML file in this repository.
-
-Then, from the working directory in which you want your program to be run, call the gridsearch_entry.sh script, which is called like
+Then, from the working directory in which you want your program to be run, call the `gridsearch_entry.sh` script, which is called like
 
 ```bash
 /path/to/gridsearch_entry.sh /path/to/main.py start_idx end_idx run_name
