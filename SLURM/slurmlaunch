@@ -222,26 +222,20 @@ def assign_hyperparams(id_, params):
     :returns params: returns a copy of params with list-values replaced by
         list items corresponding to the relevant hyperparameter combination.
     """
-    gridsearch_params = params['gridsearch']
     new_params = copy.deepcopy(params['default'])
-    # keep in mind that the top level in the 'gridsearch' section are separate configs, i.e.
-    # they shouldn't be handled with the outer product
-    param_combos = []
-    for key, value in gridsearch_params.items():
-        flattened = flatten_dict(value)
-        flattened_keys_repeated = [list(itertools.repeat(subkey, len(flattened[subkey]))) for subkey in flattened.keys()]
-        key_combos =  list(itertools.product(*flattened_keys_repeated))
-        param_combos = list(itertools.product(*flattened.values()))
-        id_ = (id_ - 1) % len(param_combos)
-        key_combo = key_combos[id_]
-        param_combo = param_combos[id_]
-
+    flattened = flatten_dict(params['gridsearch'])
+    flattened_keys_repeated = [list(itertools.repeat(subkey, len(flattened[subkey]))) for subkey in flattened.keys()]
+    key_combos = list(itertools.product(*flattened_keys_repeated))
+    param_combos = list(itertools.product(*flattened.values()))
+    idx_into_combos = (id_ - 1) % len(param_combos)
+    key_combo = key_combos[idx_into_combo]
+    param_combo = param_combos[idx_into_combo]
     for key_idx, key in enumerate(key_combo):
         temp_dict = new_params
         for subkey in key[:-1]:
             temp_dict = temp_dict[subkey]
         temp_dict[key[-1]] = param_combo[key_idx]
-    return {'default': new_params}
+    return new_params
 
 
 def get_git_info():
