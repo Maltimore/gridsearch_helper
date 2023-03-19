@@ -36,12 +36,17 @@ import yaml
               type=str,
               default='parameters.yaml',
               help='Default is ./parameters.yaml. Path to parameters file.')
-@click.option('--taskrange',
-              type=str,
-              default=1-1,
-              help='In format from-to, so to get jobs from 3 to 5 do 3-5. Default is 1-1.'
-                   'If (taskrange-end - taskrange-begin) = 1, this will be a normal (non-array) job.'
-              )
+@click.option('--taskrange-begin',
+              type=int,
+              default=1,
+              help='Default is 1.')
+@click.option('--taskrange-end',
+              type=int,
+              default=1,
+              help=(
+                  'Default is 1. '
+                  'If (taskrange-end - taskrange-begin) = 1, this will be a normal (non-array) job.'
+              ))
 @click.option('--job-name',
               default=None,
               type=str,
