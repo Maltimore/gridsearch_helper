@@ -1,6 +1,8 @@
 import copy
 
 
+# TODO use the flatten_dict function from SLURM/slurmlaunch instead and adapt
+# it to use a flatten_key_method
 def flatten_dict(dictionary, flatten_key_method='tuple'):
     """
     This function recursively flattens an arbitrarily nested
