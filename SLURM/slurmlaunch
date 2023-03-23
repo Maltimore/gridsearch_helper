@@ -36,8 +36,11 @@ import yaml
               type=str,
               default='parameters.yaml',
               help=('Default is ./parameters.yaml. Path to parameters file. If '
-                    'None, then parameters are ignored and no gridsearch will be '
-                    'performed.')
+                    'None, then parameters are ignored. This means that there '
+                    'will be no assigning of gridsearh parameters, and no '
+                    'parameters yaml file will be explicitly copied. Of course, if '
+                    'a parameter file is part of your git repository, that will '
+                    'still be available to your program.')
               )
 @click.option('--taskrange-begin',
               type=int,
@@ -46,10 +49,7 @@ import yaml
 @click.option('--taskrange-end',
               type=int,
               default=1,
-              help=(
-                  'Default is 1. '
-                  'If (taskrange-end - taskrange-begin) = 1, this will be a normal (non-array) job.'
-              ))
+              help='Default is 1.')
 @click.option('--job-name',
               default=None,
               type=str,
@@ -102,30 +102,28 @@ def main(**kwargs):
     else:
         os.makedirs(args.path)
 
-    array_job = True if args.taskrange_end - args.taskrange_begin > 0 else False
-    if array_job:
-        task_range = range(args.taskrange_begin, args.taskrange_end + 1)
-        for job_idx in task_range:
-            job_output_path = os.path.join(args.path, 'job_outputs', str(job_idx).zfill(5))
-            os.makedirs(job_output_path, exist_ok=True)
+    task_range = range(args.taskrange_begin, args.taskrange_end + 1)
+    for job_idx in task_range:
+        job_output_path = os.path.join(args.path, 'job_outputs', str(job_idx).zfill(5))
+        os.makedirs(job_output_path, exist_ok=True)
 
     if args.params_path.lower() != 'none':
         args.params_path = os.path.abspath(args.params_path)
-        # copy the params file to the output folder, regardless of whether this is an
-        # array-job or not. If it is an array-job, we will later copy appropriate
-        # params files into each output directory (for each job)
+        # copy the params file to the output folder, regardless of whether this
+        # is an array-job or not. If it is an array-job, we will later copy
+        # appropriate params files into each output directory (for each job)
         params_copy_path = os.path.join(args.path, 'parameters.yaml')
         if not os.path.exists(params_copy_path):
             shutil.copyfile(args.params_path, params_copy_path)
-        # assign hyperparams for each point on the grid and create yaml files for each job
-        if array_job:
-            with open(pathlib.Path(args.params_path), 'r') as fd:
-                params = yaml.safe_load(fd)
-            for job_idx in task_range:
-                job_output_path = os.path.join(args.path, 'job_outputs', str(job_idx).zfill(5))
-                job_params = assign_hyperparams(job_idx, copy.deepcopy(params))
-                with open(os.path.join(job_output_path, 'parameters.yaml'), 'w') as fd:
-                    yaml.dump(job_params, fd)
+        # assign hyperparams for each point on the grid and create yaml files
+        # for each job
+        with open(pathlib.Path(args.params_path), 'r') as fd:
+            params = yaml.safe_load(fd)
+        for job_idx in task_range:
+            job_output_path = os.path.join(args.path, 'job_outputs', str(job_idx).zfill(5))
+            job_params = assign_hyperparams(job_idx, copy.deepcopy(params))
+            with open(os.path.join(job_output_path, 'parameters.yaml'), 'w') as fd:
+                yaml.dump(job_params, fd)
 
     # copy the repository
     if args.use_repository_copy:
