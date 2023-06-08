@@ -9,9 +9,9 @@ A common problem is that you want to run a grid search over hyperparameters. For
 ## Requirements in your code
 In order for this to work, unfortunately some assumptions have to be made about your code. I hope that making modifications to your code such that it fulfills these requirements is not too hard.
 - Your project must be version controlled with git
-- Your code must be able to read its hyperparameters from a `YAML` file, and your code must accept a command line parameter like `--parameters_file=...` which tells it from where to read the `YAML` file.
+- Your code must be able to read its hyperparameters from a `YAML` file, and your code must accept a command line parameter `--parameters_file=...` which tells it from where to read the `YAML` file.
 - if you use data or other external files in your code, either these data need to be part of your git repository, or your code must use absolute paths to these data
-- Your code must be set up such that it takes a command line parameter like `--output_path=...` and writes all its output in (subfolders of) this path
+- Your code must be set up such that it takes a command line parameter `--path=...` and writes all its output in (subfolders of) this path
 
 ## Usage - running gridsearch jobs
 Place this repository anywhere on your system.
