@@ -36,7 +36,7 @@ import yaml
               type=str,
               default='parameters.yaml',
               help=('Default is ./parameters.yaml. Path to parameters file. If '
-                    'None, then parameters are ignored. This means that there '
+                    '\'None\', then parameters are ignored. This means that there '
                     'will be no assigning of gridsearh parameters, and no '
                     'parameters yaml file will be explicitly copied. Of course, if '
                     'a parameter file is part of your git repository, that will '
@@ -103,8 +103,8 @@ def main(**kwargs):
         os.makedirs(args.path)
 
     task_range = range(args.taskrange_begin, args.taskrange_end + 1)
-    for job_idx in task_range:
-        job_output_path = os.path.join(args.path, 'job_outputs', str(job_idx).zfill(5))
+    job_output_paths = [os.path.join(args.path, 'job_outputs', str(job_idx).zfill(5)) for job_idx in task_range]
+    for job_output_path in job_output_paths:
         os.makedirs(job_output_path, exist_ok=True)
 
     if args.params_path.lower() != 'none':
@@ -119,8 +119,8 @@ def main(**kwargs):
         # for each job
         with open(pathlib.Path(args.params_path), 'r') as fd:
             params = yaml.safe_load(fd)
-        for job_idx in task_range:
-            job_output_path = os.path.join(args.path, 'job_outputs', str(job_idx).zfill(5))
+        for i, job_idx in enumerate(task_range):
+            job_output_path = job_output_paths[i]  # remember that job_idx does not have to be equal to i
             job_params = assign_hyperparams(job_idx, copy.deepcopy(params))
             with open(os.path.join(job_output_path, 'parameters.yaml'), 'w') as fd:
                 yaml.dump(job_params, fd)
