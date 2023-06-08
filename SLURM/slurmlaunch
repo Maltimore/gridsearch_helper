@@ -255,8 +255,9 @@ def assign_hyperparams(id_, params):
     :returns params: returns a copy of params with list-values replaced by
         list items corresponding to the relevant hyperparameter combination.
     """
-    new_params = copy.deepcopy(params['default'])
-    flattened = flatten_dict(params['gridsearch'])
+    new_params = copy.deepcopy(params)
+
+    flattened = flatten_dict(new_params.pop('gridsearch'))
     flattened_keys_repeated = [list(itertools.repeat(subkey, len(flattened[subkey]))) for subkey in flattened.keys()]
     key_combos = list(itertools.product(*flattened_keys_repeated))
     param_combos = list(itertools.product(*flattened.values()))
