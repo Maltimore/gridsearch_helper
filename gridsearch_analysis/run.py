@@ -9,7 +9,7 @@ if __name__ == '__main__':
     # Specify which columns to plot as strings in a list. List can be empty.
     RELEVANT_PARAMETERS = ['noise_level']  # list of strings (list can be empty)
     # what variable to use as performance measure
-    TARGET_COLUMN = 'best_r2'  # string
+    TARGET_COLUMN = 'run_time_seconds'  # string
     # is the performance better when the target variable is lower or when it is higher?
     LOWER_IS_BETTER = False  # bool
     # split up the analysis into separate parts for unique values in this column
@@ -25,6 +25,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--path', help='Path to root of gridsearch results')
     args = parser.parse_args()
+    args.path = os.path.expanduser(args.path)
 
     # collect results
     results_path = os.path.join(args.path, 'job_outputs')
