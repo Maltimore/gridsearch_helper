@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import sys
 import os
 from argparse import Namespace
@@ -216,10 +216,12 @@ def cleanup():
     run_time_seconds = (
         end_time - datetime.datetime.strptime(run_info['start_time'], '%Y-%m-%d %H:%M:%S.%f')
     ).seconds
+    run_time_human_readable = str(datetime.timedelta(seconds=run_time_seconds))
     print(f"End time : {end_time}")
-    print(f"Run time (seconds): {run_time_seconds}", flush=True)
+    print(f"Run time (H:MM:SS): {run_time_human_readable}", flush=True)
     run_info["end_time"] = str(end_time)
     run_info["run_time_seconds"] = run_time_seconds
+    run_info["run_time_human_readable"] = run_time_human_readable
     run_info["run_finished"] = True
     with open(pathlib.Path(os.environ['OUTPUT_PATH'], 'run_info.yaml'), "w") as fd:
         yaml.dump(run_info, fd)
