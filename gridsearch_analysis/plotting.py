@@ -76,11 +76,11 @@ def plot(df, plot_path, RELEVANT_PARAMETERS, TARGET_COLUMN, LOWER_IS_BETTER,
 
             # bar plot
             reduced_df = df.groupby(relevant_col)[TARGET_COLUMN].describe()
-            if not len(reduced_df.index) == len(VAR_ORDER):
-                raise Exception(
-                    'There are values in VAR_ORDER that do not appear in the data: {}'
-                    .format(np.setdiff1d(VAR_ORDER, list(reduced_df.index))))
             if VAR_ORDER is not None:
+                if not len(reduced_df.index) == len(VAR_ORDER):
+                    raise Exception(
+                        'There are values in VAR_ORDER that do not appear in the data: {}'
+                        .format(np.setdiff1d(VAR_ORDER, list(reduced_df.index))))
                 reduced_df = reduced_df.loc[VAR_ORDER]
             reduced_df.plot.bar(y='mean', yerr='std')
             plt.ylim([0, y_max])
