@@ -58,6 +58,6 @@ Furthermore, ``gridsearch_analysis`` can also make plots of the collected result
 - 1  independent variable: create a swarm/barplot with one group for each value of the independent variable
 - 2+ independent variables: create a parallel coordinates plot
 
-There is also an option to split the analysis into separate parts via the values of another independent variable. In this case, one plot per value of this ``split_analysis_column`` is performed. This effectively reduces the amount of independent variables by 1.
+There is also an option to split the analysis into separate parts via the values of another independent variable. In this case, one plot per value of this ``split_analysis_column`` is performed.
 
 See the file `gridsearch_analysis/run.py` for an example how to use `gridsearch_analysis`.
