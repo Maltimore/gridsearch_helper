@@ -59,7 +59,7 @@ import yaml
               help='Time limit for each task in HH:MM:SS format.'
               )
 @click.option('--mem',
-              default='4G',
+              default='6G',
               type=str,
               help=('How much memory to reserve. For format see slurm documentation, '
                    'but e.g. 4 GB is represented as 4G')
