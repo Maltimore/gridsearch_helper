@@ -54,12 +54,18 @@ import yaml
               type=str,
               help='By default the last directory of --path is the job name.')
 @click.option('--time',
-              default=None,
+              default='02:00:00',
               type=str,
               help='Time limit for each task in HH:MM:SS format.'
               )
+@click.option('--mem',
+              default='4G',
+              type=str,
+              help=('How much memory to reserve. For format see slurm documentation, '
+                   'but e.g. 4 GB is represented as 4G')
+              )
 @click.option('--partition',
-              default=None,
+              default='cpu-2h',
               type=str,
               help=('Name of the partition to run on. Tip: Find available partitions on SLURM '
                     'with sinfo.')
@@ -180,13 +186,12 @@ def main(**kwargs):
         f'--output={args.path}/job_outputs/%5a/sdout',
         f'--error={args.path}/job_outputs/%5a/sderror',
         f'--job-name={args.job_name}',
-        f'--array={args.taskrange_begin}-{args.taskrange_end}'
+        f'--array={args.taskrange_begin}-{args.taskrange_end}',
+        f'--time={args.time}',
+        f'--mem={args.mem}',
+        f'--partition={args.partition}',
+        args.launch_script,
     ])
-    if args.time is not None:
-        qsub_command += [f'--time={args.time}']
-    if args.partition is not None:
-        qsub_command += [f'--partition={args.partition}']
-    qsub_command += [args.launch_script]
     print('Running the following qsub command now:')
     print(qsub_command)
     subprocess.run(qsub_command)
