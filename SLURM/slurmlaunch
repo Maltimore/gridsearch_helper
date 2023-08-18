@@ -3,7 +3,6 @@ import sys
 import os
 from argparse import Namespace
 import shutil
-import pathlib
 import copy
 import subprocess
 import datetime
@@ -117,7 +116,7 @@ def main(**kwargs):
             shutil.copyfile(args.params_path, params_copy_path)
         # assign hyperparams for each point on the grid and create yaml files
         # for each job
-        with open(pathlib.Path(args.params_path), 'r') as fd:
+        with open(args.params_path, 'r') as fd:
             params = yaml.safe_load(fd)
         for i, job_idx in enumerate(task_range):
             job_output_path = job_output_paths[i]  # remember that job_idx does not have to be equal to i
@@ -205,12 +204,12 @@ def setup():
         "task_id": int(os.environ['SLURM_ARRAY_TASK_ID']),
         "random_seed": int(os.environ['RANDOM_SEED']),
     }
-    with open(pathlib.Path(os.environ['OUTPUT_PATH'], 'run_info.yaml'), "w") as fd:
+    with open(os.path.join(os.environ['OUTPUT_PATH'], 'run_info.yaml'), "w") as fd:
         yaml.dump(run_info, fd)
 
 
 def cleanup():
-    with open(pathlib.Path(os.environ['OUTPUT_PATH'], 'run_info.yaml'), 'r') as fd:
+    with open(os.path.join(os.environ['OUTPUT_PATH'], 'run_info.yaml'), 'r') as fd:
         run_info = yaml.safe_load(fd)
     end_time = datetime.datetime.now()
     run_time_seconds = (
@@ -223,7 +222,7 @@ def cleanup():
     run_info["run_time_seconds"] = run_time_seconds
     run_info["run_time_human_readable"] = run_time_human_readable
     run_info["run_finished"] = True
-    with open(pathlib.Path(os.environ['OUTPUT_PATH'], 'run_info.yaml'), "w") as fd:
+    with open(os.path.join(os.environ['OUTPUT_PATH'], 'run_info.yaml'), "w") as fd:
         yaml.dump(run_info, fd)
 
 
