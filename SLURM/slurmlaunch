@@ -43,12 +43,12 @@ import yaml
               )
 @click.option('--taskrange-begin',
               type=int,
-              default=1,
-              help='Default is 1.')
+              default=0,
+              help='Default is 0.')
 @click.option('--taskrange-end',
               type=int,
-              default=1,
-              help='Default is 1.')
+              default=0,
+              help='Default is 0.')
 @click.option('--job-name',
               default=None,
               type=str,
