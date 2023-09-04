@@ -70,6 +70,11 @@ import yaml
               help=('Name of the partition to run on. Tip: Find available partitions on SLURM '
                     'with sinfo.')
               )
+@click.option('--export-variables',
+              default='',
+              type=str,
+              help=('Export extra variables to the SLURM job. Format: var1=hello,var2=world')
+              )
 @click.option('--use-repository-copy',
               default=True,
               type=bool,
@@ -182,7 +187,7 @@ def main(**kwargs):
 
     qsub_command = ([
         'sbatch',
-        f'--export=ALL,LAUNCH_SCRIPT={__file__},OUTPUT_PATH={args.path}',
+        f'--export=ALL,LAUNCH_SCRIPT={__file__},OUTPUT_PATH={args.path},{args.export_variables}',
         f'--output={args.path}/job_outputs/%5a/sdout',
         f'--error={args.path}/job_outputs/%5a/sderror',
         f'--job-name={args.job_name}',
