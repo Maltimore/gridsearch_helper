@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="gridsearch_analysis",
-    version="0.1.0",
+    version="0.9.0",
     author="Malte Esders",
     author_email="git@maltimore.info",
     description="Analysis of gridsearch performed with gridsearch_helper",
