@@ -15,7 +15,7 @@ import yaml
 
 
 @click.command()
-@click.option('--path',
+@click.option('--output-path',
               type=str,
               required=True,
               help='Output directory.')
@@ -52,7 +52,7 @@ import yaml
 @click.option('--job-name',
               default=None,
               type=str,
-              help='By default the last directory of --path is the job name.')
+              help='By default the last directory of --output-path is the job name.')
 @click.option('--time',
               default='02:00:00',
               type=str,
@@ -97,23 +97,23 @@ def main(**kwargs):
     elif args.action == 'cleanup':
         return cleanup()
 
-    args.path = os.path.abspath(args.path)
+    args.output_path = os.path.abspath(args.output_path)
     args.launch_script = os.path.abspath(args.launch_script)
     # job_name
     if args.job_name is None:
-        args.job_name = os.path.basename(args.path)
+        args.job_name = os.path.basename(args.output_path)
         print(f'Job name set to {args.job_name}')
 
-    if os.path.exists(args.path):
-        print(f"Output directory {args.path} already exists, "
+    if os.path.exists(args.output_path):
+        print(f"Output directory {args.output_path} already exists, "
               "should we continue?")
         if not input('[y to continue]') == 'y':
             sys.exit('Ok, no job started')
     else:
-        os.makedirs(args.path)
+        os.makedirs(args.output_path)
 
     task_range = range(args.taskrange_begin, args.taskrange_end + 1)
-    job_output_paths = [os.path.join(args.path, 'job_outputs', str(job_idx).zfill(5)) for job_idx in task_range]
+    job_output_paths = [os.path.join(args.output_path, 'job_outputs', str(job_idx).zfill(5)) for job_idx in task_range]
     for job_output_path in job_output_paths:
         os.makedirs(job_output_path, exist_ok=True)
 
@@ -122,7 +122,7 @@ def main(**kwargs):
         # copy the params file to the output folder, regardless of whether this
         # is an array-job or not. If it is an array-job, we will later copy
         # appropriate params files into each output directory (for each job)
-        params_copy_path = os.path.join(args.path, 'parameters.yaml')
+        params_copy_path = os.path.join(args.output_path, 'parameters.yaml')
         if not os.path.exists(params_copy_path):
             shutil.copyfile(args.params_path, params_copy_path)
         # assign hyperparams for each point on the grid and create yaml files
@@ -137,7 +137,7 @@ def main(**kwargs):
 
     # copy the repository
     if args.use_repository_copy:
-        repository_copy_path = os.path.join(args.path, 'repository')
+        repository_copy_path = os.path.join(args.output_path, 'repository')
         if os.path.exists(repository_copy_path) and input('Overwrite repository copy in output path? (y/n)').lower() == 'y':
             shutil.rmtree(repository_copy_path)
         if not os.path.exists(repository_copy_path):
@@ -167,7 +167,7 @@ def main(**kwargs):
                 ).stdout.rstrip()
                 command = [
                     'git', 'archive',
-                    '-o', os.path.join(args.path, 'temporary_git_stash_archive.tar'),
+                    '-o', os.path.join(args.output_path, 'temporary_git_stash_archive.tar'),
                     stash_hash,
                     git_root_directory
                 ]
@@ -175,21 +175,21 @@ def main(**kwargs):
             else:
                 # git status is clean, create archive from HEAD
                 os.system(
-                    f'git archive -o {args.path}/temporary_git_stash_archive.tar HEAD {git_root_directory}'
+                    f'git archive -o {args.output_path}/temporary_git_stash_archive.tar HEAD {git_root_directory}'
                 )
             print(f'Unpacking git archive to {repository_copy_path}')
-            os.system(f'tar -xf {args.path}/temporary_git_stash_archive.tar -C {repository_copy_path}')
-            os.system(f'rm {args.path}/temporary_git_stash_archive.tar')
+            os.system(f'tar -xf {args.output_path}/temporary_git_stash_archive.tar -C {repository_copy_path}')
+            os.system(f'rm {args.output_path}/temporary_git_stash_archive.tar')
 
         print(f'Switching to repository directory {repository_copy_path}')
         os.chdir(repository_copy_path)
         print(f'Now in {os.getcwd()}')
 
-    qsub_command = ([
+    sbatch_command = ([
         'sbatch',
-        f'--export=ALL,LAUNCH_SCRIPT={__file__},OUTPUT_PATH={args.path},{args.export_variables}',
-        f'--output={args.path}/job_outputs/%5a/sdout',
-        f'--error={args.path}/job_outputs/%5a/sderror',
+        f'--export=ALL,LAUNCH_SCRIPT={__file__},OUTPUT_PATH={args.output_path},{args.export_variables}',
+        f'--output={args.output_path}/job_outputs/%5a/sdout',
+        f'--error={args.output_path}/job_outputs/%5a/sderror',
         f'--job-name={args.job_name}',
         f'--array={args.taskrange_begin}-{args.taskrange_end}',
         f'--time={args.time}',
@@ -197,9 +197,9 @@ def main(**kwargs):
         f'--partition={args.partition}',
         args.launch_script,
     ])
-    print('Running the following qsub command now:')
-    print(qsub_command)
-    subprocess.run(qsub_command)
+    print('Running the following sbatch command now:')
+    print(sbatch_command)
+    subprocess.run(sbatch_command)
 
 
 def setup():
