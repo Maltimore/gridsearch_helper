@@ -59,10 +59,10 @@ import yaml
               help='Time limit for each task in HH:MM:SS format.'
               )
 @click.option('--mem',
-              default='6G',
+              default='10G',
               type=str,
               help=('How much memory to reserve. For format see slurm documentation, '
-                   'but e.g. 4 GB is represented as 4G')
+                   'e.g. 4 GB is represented as 4G')
               )
 @click.option('--partition',
               default='cpu-2h',
@@ -87,8 +87,8 @@ import yaml
               type=click.Choice(('launch', 'setup', 'cleanup')),
               help=(
                   'As an enduser, you do not have to worry about this option. '
-                  'It is for internal use only.'
-              ))
+                  'It is for internal use only.')
+              )
 def main(**kwargs):
     args = Namespace(**kwargs)
 
