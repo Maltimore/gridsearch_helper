@@ -54,9 +54,10 @@ import yaml
               type=str,
               help='By default the last directory of --output-path is the job name.')
 @click.option('--time',
-              default='02:00:00',
+              default='None',
               type=str,
-              help='Time limit for each task in HH:MM:SS format.'
+              help=('Time limit for each task. Default is None. '
+                    'Format is either MM, HH:MM, or D-HH:MM')
               )
 @click.option('--mem',
               default='10G',
@@ -185,20 +186,22 @@ def main(**kwargs):
         os.chdir(repository_copy_path)
         print(f'Now in {os.getcwd()}')
 
-    sbatch_command = ([
+    sbatch_command = [
         'sbatch',
         f'--export=ALL,LAUNCH_SCRIPT={__file__},OUTPUT_PATH={args.output_path},{args.export_variables}',
         f'--output={args.output_path}/job_outputs/%5a/sdout',
         f'--error={args.output_path}/job_outputs/%5a/sderror',
         f'--job-name={args.job_name}',
         f'--array={args.taskrange_begin}-{args.taskrange_end}',
-        f'--time={args.time}',
         f'--mem={args.mem}',
         f'--partition={args.partition}',
-        args.launch_script,
-    ])
+    ]
+    if args.time != 'None':
+        sbatch_command.append(f'--time={args.time}')
+    sbatch_command.append(args.launch_script)
     print('Running the following sbatch command now:')
-    print(sbatch_command)
+    for item in sbatch_command:
+        print(item)
     subprocess.run(sbatch_command)
 
 
