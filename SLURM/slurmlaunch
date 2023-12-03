@@ -199,9 +199,9 @@ def main(**kwargs):
     if args.time != 'None':
         sbatch_command.append(f'--time={args.time}')
     sbatch_command.append(args.launch_script)
-    print('Running the following sbatch command now:')
-    for item in sbatch_command:
-        print(item)
+#    print('Running the following sbatch command now:')
+#    for item in sbatch_command:
+#        print(item)
     subprocess.run(sbatch_command)
 
 
