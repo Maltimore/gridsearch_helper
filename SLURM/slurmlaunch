@@ -60,7 +60,7 @@ import yaml
                     'Format is either MM, HH:MM, or D-HH:MM')
               )
 @click.option('--mem',
-              default='10G',
+              default='30G',
               type=str,
               help=('How much memory to reserve. For format see slurm documentation, '
                    'e.g. 4 GB is represented as 4G')
