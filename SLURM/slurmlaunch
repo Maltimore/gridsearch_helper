@@ -9,6 +9,7 @@ import datetime
 import platform
 import warnings
 import itertools
+import time
 
 import click
 import yaml
@@ -159,21 +160,40 @@ def main(**kwargs):
                 capture_output=True,
                 text=True
             ).stdout.rstrip()
-            git_status_clean = not os.system('git diff-index --quiet HEAD')
-            if not git_status_clean:
+            print(f'Found git root directory to be {git_root_directory}')
+            # if this command doesn't return 0, git status is dirty
+            git_status_dirty = os.system('git diff-index --quiet HEAD')
+            if git_status_dirty:
                 # git status is dirty, create archive from stash
                 # create a stash and save the hash
-                stash_hash = subprocess.run(
-                    ['git', 'stash', 'create'],
-                    capture_output=True,
-                    text=True
-                ).stdout.rstrip()
+                # sometimes this does not work so we try 10 times
+                for _ in range(10):
+                    try:
+                        completed_process = subprocess.run(
+                            ['git', 'stash', 'create'],
+                            capture_output=True,
+                            text=True,
+                            check=True
+                        )
+                    except subprocess.CalledProcessError as e:
+                        print(e)
+                        print('Trying again')
+                        continue
+                    else:
+                        break
+                else:
+                    # if for loop ran 10 times without sucess, i.e. we did not break out of the loop
+                    raise Exception('Tried to create the stash 10 times without success')
+                stash_hash = completed_process.stdout.rstrip()
+                time.sleep(0.5)
+                print(f'Created git stash with hash: {stash_hash}')
                 command = [
                     'git', 'archive',
                     '-o', os.path.join(args.output_path, 'temporary_git_stash_archive.tar'),
                     stash_hash,
                     git_root_directory
                 ]
+                print(f'Running command: "{command}" to create an archive of the hash')
                 subprocess.run(command)
             else:
                 # git status is clean, create archive from HEAD
@@ -201,9 +221,6 @@ def main(**kwargs):
     if args.time != 'None':
         sbatch_command.append(f'--time={args.time}')
     sbatch_command.append(args.launch_script)
-#    print('Running the following sbatch command now:')
-#    for item in sbatch_command:
-#        print(item)
     subprocess.run(sbatch_command)
 
 
