@@ -58,7 +58,7 @@ import yaml
               default='None',
               type=str,
               help=('Time limit for each task. Default is None. '
-                    'Format is either MM, HH:MM, or D-HH:MM')
+                    'For format see documentation of slurm, e.g. man srun')
               )
 @click.option('--mem',
               default='30G',
