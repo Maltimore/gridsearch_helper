@@ -1,7 +1,5 @@
 # Gridsearch Helper
-This repository contains some helper scripts to launch your parallelized gridsearch with the SLURM scheduling system. In the past there was also support for Sun Grid Engine, now called Univa grid engine. It shouldn't be hard to re-add support for that if there is interest.
-Additionally it also provides a python package to collect and visualize the results of the gridsearch.
-
+This repository contains some helper scripts to launch your parallelized gridsearch with the SLURM scheduling system. Additionally it also provides a python package to collect and visualize the results of the gridsearch, but that is currently unmaintained.
 
 ## What problems does `gridsearch_helper` solve?
 A common problem is that you want to run a grid search over hyperparameters. For simple grid searches, this is not very complicated, but for more complex setups (e.g. including nested hyperparameter dicts), this becomes cumbersome. `gridsearch_helper` helps with that. Additionally, sometimes you want to run several gridsearches simultaneously and change the code in between. A problem occurs if you start a gridsearch and some jobs are put into the waiting queue. Then you change the code for another gridsearch that you want to run. The jobs from your old gridsearch will eventually get activated, but they will now run the new code, which you are in the middle of changing! `gridsearch_helper` helps with that, too. Every time you start a new job, a copy of the current version of your repository is made. The gridsearch is then executed within this copy. What's especially great about this is that this happens without you even noticing or having to care about it.
@@ -13,7 +11,12 @@ In order for this to work, unfortunately some assumptions have to be made about 
 - if you use data or other external files in your code, either these data need to be part of your git repository, or your code must use absolute paths to these data
 - Your code must be set up such that it takes a command line parameter `--path=...` and writes all its output in (subfolders of) this path
 
-## Usage - running gridsearch jobs
+## Installation and Usage - running gridsearch jobs
+First, make sure the follwing dependencies are installed:
+
+- PyYAML
+- click
+
 Place this repository anywhere on your system.
 
 You need to have a `YAML` file containing the default parameters, and one key `'gridsearch'`, which contains lists of values for each parameter to gridsearch over. In case you have your parameters nested, that isn't a problem, for the purpose of the gridsearch we assign parameters as if the nesting was flattened.
