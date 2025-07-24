@@ -58,24 +58,25 @@ import yaml
               default='None',
               type=str,
               help=('Time limit for each task. Default is None. '
-                    'For format see documentation of slurm, e.g. man srun')
+                    'For format see documentation of slurm, e.g. `man srun`')
               )
 @click.option('--mem',
               default='30G',
               type=str,
               help=('How much memory to reserve. For format see slurm documentation, '
-                   'e.g. 4 GB is represented as 4G')
+                   '(`man srun`), e.g. 4 GB is represented as 4G')
               )
 @click.option('--partition',
               default='cpu-2h',
               type=str,
               help=('Name of the partition to run on. Tip: Find available partitions on SLURM '
-                    'with sinfo.')
+                    'with `sinfo`.')
               )
 @click.option('--export-variables',
               default='',
               type=str,
-              help=('Export extra variables to the SLURM job. Format: var1=hello,var2=world')
+              help=('Export extra variables to the SLURM job as a comma-separated list. '
+                    'Format: var1=hello,var2=world')
               )
 @click.option('--use-repository-copy',
               default=True,
@@ -101,7 +102,6 @@ def main(**kwargs):
 
     args.output_path = os.path.abspath(args.output_path)
     args.launch_script = os.path.abspath(args.launch_script)
-    # job_name
     if args.job_name is None:
         job_name = os.path.basename(args.output_path)
         print(f'Job name set to {job_name}')
@@ -116,25 +116,25 @@ def main(**kwargs):
     else:
         os.makedirs(args.output_path)
 
-    task_range = range(args.taskrange_begin, args.taskrange_end + 1)
+    task_range = range(args.taskrange_begin, args.taskrange_end + 1)  # SLURM range is inclusive, python's is exclusive
     job_output_paths = [os.path.join(args.output_path, 'job_outputs', str(job_idx).zfill(5)) for job_idx in task_range]
     for job_output_path in job_output_paths:
         os.makedirs(job_output_path, exist_ok=True)
 
     if args.params_path.lower() != 'none':
-        args.params_path = os.path.abspath(args.params_path)
+        params_path = os.path.abspath(args.params_path)
         # copy the params file to the output folder, regardless of whether this
         # is an array-job or not. If it is an array-job, we will later copy
         # appropriate params files into each output directory (for each job)
         params_copy_path = os.path.join(args.output_path, 'parameters.yaml')
         if not os.path.exists(params_copy_path):
-            shutil.copyfile(args.params_path, params_copy_path)
+            shutil.copyfile(params_path, params_copy_path)
         # assign hyperparams for each point on the grid and create yaml files
         # for each job
-        with open(args.params_path, 'r') as fd:
+        with open(params_path, 'r') as fd:
             params = yaml.safe_load(fd)
-        for i, job_idx in enumerate(task_range):
-            job_output_path = job_output_paths[i]  # remember that job_idx does not have to be equal to i
+        for i, job_idx in enumerate(task_range):  # remember that job_idx does not have to be equal to i
+            job_output_path = job_output_paths[i]
             job_params = assign_hyperparams(job_idx, copy.deepcopy(params))
             with open(os.path.join(job_output_path, 'parameters.yaml'), 'w') as fd:
                 yaml.dump(job_params, fd)
