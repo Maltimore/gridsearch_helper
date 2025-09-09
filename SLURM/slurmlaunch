@@ -146,6 +146,7 @@ def main(**kwargs):
         # override params
         for kv in args.override_params.split(","):
             key, val = kv.split("=")
+            val = yaml.safe_load(val)
             # we assume there may be nested keys
             keys = key.split(".")
             cur_d = params
