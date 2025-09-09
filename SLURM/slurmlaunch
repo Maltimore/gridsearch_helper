@@ -85,6 +85,13 @@ import yaml
                     'If a repository already exists, you will be asked if it '
                     'shall be overwritten.')
               )
+@click.option('--override-params',
+              default='',
+              type=str,
+              help=('Comma-separated list. Override params in params.yaml'
+                    'Format: \'key1=a,key2=b\' '
+                    'The types are interepreted as in yaml')
+              )
 @click.option('--action',
               default='launch',
               type=click.Choice(('launch', 'setup', 'cleanup')),
@@ -94,12 +101,12 @@ import yaml
               )
 def main(**kwargs):
     args = Namespace(**kwargs)
-
     if args.action == 'setup':
         return setup()
     elif args.action == 'cleanup':
         return cleanup()
 
+    # parse/modify args
     args.output_path = os.path.abspath(args.output_path)
     args.launch_script = os.path.abspath(args.launch_script)
     if args.job_name is None:
@@ -108,6 +115,7 @@ def main(**kwargs):
     else:
         job_name = args.job_name
 
+    # create overarching array job directory
     if os.path.exists(args.output_path):
         print(f"Output directory {args.output_path} already exists, "
               "should we continue?")
@@ -116,23 +124,32 @@ def main(**kwargs):
     else:
         os.makedirs(args.output_path)
 
+    # create task range, create dir for each task
     task_range = range(args.taskrange_begin, args.taskrange_end + 1)  # SLURM range is inclusive, python's is exclusive
     job_output_paths = [os.path.join(args.output_path, 'job_outputs', str(job_idx).zfill(5)) for job_idx in task_range]
     for job_output_path in job_output_paths:
         os.makedirs(job_output_path, exist_ok=True)
 
+    # load params, assign gridseach params
     if args.params_path.lower() != 'none':
         params_path = os.path.abspath(args.params_path)
         # copy the params file to the output folder, regardless of whether this
         # is an array-job or not. If it is an array-job, we will later copy
         # appropriate params files into each output directory (for each job)
         params_copy_path = os.path.join(args.output_path, 'parameters.yaml')
-        if not os.path.exists(params_copy_path):
-            shutil.copyfile(params_path, params_copy_path)
-        # assign hyperparams for each point on the grid and create yaml files
-        # for each job
         with open(params_path, 'r') as fd:
             params = yaml.safe_load(fd)
+        # override params
+        for kv in args.override_params.split(","):
+            k, v = kv.split("=")
+            orig_val = params[k]
+            params[k] = type(orig_val)(yaml.safe_load(v))
+        if os.path.exists(params_copy_path):
+            os.remove(params_copy_path)
+        with open(params_copy_path, 'w') as fd:
+            yaml.dump(params, fd)
+        # assign hyperparams for each point on the grid and create yaml files
+        # for each job
         for i, job_idx in enumerate(task_range):  # remember that job_idx does not have to be equal to i
             job_output_path = job_output_paths[i]
             job_params = assign_hyperparams(job_idx, copy.deepcopy(params))
