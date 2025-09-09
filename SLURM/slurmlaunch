@@ -88,9 +88,12 @@ import yaml
 @click.option('--override-params',
               default='',
               type=str,
-              help=('Comma-separated list. Override params in params.yaml'
+              help=('Comma-separated list. Override params in params.yaml. '
                     'Format: \'key1=a,key2=b\' '
-                    'The types are interepreted as in yaml')
+                    'The types are interepreted as in yaml. '
+                    'Setting this only makes sense if the param in question is not part '
+                    'of the values that are grid-searched over, as otherwise it will '
+                    'be overridden by that.')
               )
 @click.option('--action',
               default='launch',
