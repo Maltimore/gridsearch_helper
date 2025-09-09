@@ -89,7 +89,8 @@ import yaml
               default='',
               type=str,
               help=('Comma-separated list. Override params in params.yaml. '
-                    'Format: \'key1=a,key2=b\' '
+                    'Nested keys are supported. '
+                    'Format: \'key1=a,key2.subkey1=b\' '
                     'The types are interepreted as in yaml. '
                     'Setting this only makes sense if the param in question is not part '
                     'of the values that are grid-searched over, as otherwise it will '
@@ -144,9 +145,13 @@ def main(**kwargs):
             params = yaml.safe_load(fd)
         # override params
         for kv in args.override_params.split(","):
-            k, v = kv.split("=")
-            orig_val = params[k]
-            params[k] = type(orig_val)(yaml.safe_load(v))
+            key, val = kv.split("=")
+            # we assume there may be nested keys
+            keys = key.split(".")
+            cur_d = params
+            for cur_k in keys[:-1]:
+                cur_d = cur_d.setdefault(cur_k, {})
+            cur_d[keys[-1]] = val
         if os.path.exists(params_copy_path):
             os.remove(params_copy_path)
         with open(params_copy_path, 'w') as fd:
