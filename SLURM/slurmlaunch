@@ -212,6 +212,7 @@ def main(**kwargs):
                     except subprocess.CalledProcessError as e:
                         print(e)
                         print('Trying again')
+                        time.sleep(1)
                         continue
                     else:
                         break
