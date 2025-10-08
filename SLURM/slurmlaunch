@@ -121,10 +121,16 @@ def main(**kwargs):
 
     # create overarching array job directory
     if os.path.exists(args.output_path):
-        print(f"Output directory {args.output_path} already exists, "
-              "should we continue?")
-        if not input('[y to continue]') == 'y':
-            sys.exit('Ok, no job started')
+        print(f"Output directory {args.output_path} already exists.")
+        response = input('[i]gnore it, [d]elete it, [c]ancel job submission? ')
+        if response == 'i':
+            pass
+        elif response == 'd':
+            print(f'Deleting directory {args.output_path}')
+            shutil.rmtree(args.output_path)
+            os.makedirs(args.output_path)
+        else:
+            sys.exit('Ok, no job started, exiting.')
     else:
         os.makedirs(args.output_path)
 
