@@ -87,7 +87,7 @@ import yaml
               )
 @click.option('--override-params',
               default='',
-              type=str,
+              type=yaml.safe_load,
               help=('Comma-separated list. Override params in params.yaml. '
                     'Nested keys are supported. '
                     'Format: \'key1=a,key2.subkey1=b\' '
@@ -150,11 +150,7 @@ def main(**kwargs):
         with open(params_path, 'r') as fd:
             params = yaml.safe_load(fd)
         # override params
-        for kv in args.override_params.split(","):
-            if kv == '':
-                break
-            key, val = kv.split("=")
-            val = yaml.safe_load(val)
+        for key, val in args.override_params.items():
             # we assume there may be nested keys
             keys = key.split(".")
             cur_d = params
