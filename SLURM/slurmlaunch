@@ -75,8 +75,8 @@ import yaml
 @click.option('--export-variables',
               default='',
               type=str,
-              help=('Export extra variables to the SLURM job as a comma-separated list. '
-                    'Format: var1=hello,var2=world')
+              help=('Export extra variables to the SLURM job as a yaml formatted string. '
+                    "Format: --override-args='{var1: hello, var2: world}'")
               )
 @click.option('--use-repository-copy',
               default=True,
