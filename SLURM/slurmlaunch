@@ -96,6 +96,11 @@ import yaml
                     'of the values that are grid-searched over, as otherwise it will '
                     'be overridden by that.')
               )
+@click.option('--exclude',
+              default='',
+              type=str,
+              help='Comma-separated list of nodes to exclude.'
+              )
 @click.option('--action',
               default='launch',
               type=click.Choice(('launch', 'setup', 'cleanup')),
@@ -248,6 +253,7 @@ def main(**kwargs):
         f'--array={args.taskrange_begin}-{args.taskrange_end}',
         f'--mem={args.mem}',
         f'--partition={args.partition}',
+        f'--exclude={args.exclude}',
     ]
     if args.time != 'None':
         sbatch_command.append(f'--time={args.time}')
