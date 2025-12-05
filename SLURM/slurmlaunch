@@ -85,6 +85,11 @@ import yaml
                     'If a repository already exists, you will be asked if it '
                     'shall be overwritten.')
               )
+@click.option('--delete',
+              default=False,
+              type=bool,
+              help='Delete existing output folder if exists (will not be prompted if this is True)',
+              )
 @click.option('--override-params',
               default='',
               type=yaml.safe_load,
@@ -125,6 +130,9 @@ def main(**kwargs):
         job_name = args.job_name
 
     # create overarching array job directory
+    if os.path.exists(args.output_path) and args.delete:
+        print(f'Deleting directory {args.output_path}')
+        shutil.rmtree(args.output_path)
     if os.path.exists(args.output_path):
         print(f"Output directory {args.output_path} already exists.")
         response = input('[i]gnore it, [d]elete it, [c]ancel job submission? ')
